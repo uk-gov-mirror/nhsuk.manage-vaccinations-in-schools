@@ -35,6 +35,38 @@ class PatientImport < ApplicationRecord
     (matched / attempted * 100).round(2)
   end
 
+  def destroy_parents!
+    ActiveRecord::Base.transaction do
+      parent_relationships = self.parent_relationships.includes(:parent)
+
+      parents_to_check = self.parent_relationships.map(&:parent)
+
+      parent_relationships.destroy_all
+
+      parents_to_check.each do |parent|
+        parent.destroy! if parent.parent_relationships.empty?
+      end
+    end
+  end
+
+  def destroy_parents_without_consent!
+    ActiveRecord::Base.transaction do
+      parent_relationships =
+        self
+          .parent_relationships
+          .includes(:parent)
+          .select { |pr| pr.parent.consents.empty? }
+
+      parents_to_check = self.parent_relationships.map(&:parent)
+
+      parent_relationships.each(&:destroy!)
+
+      parents_to_check.each do |parent|
+        parent.destroy! if parent.parent_relationships.empty?
+      end
+    end
+  end
+
   private
 
   def check_rows_are_unique

@@ -1,0 +1,36 @@
+<% content_for :before_main do %>
+  <%= render AppBreadcrumbComponent.new(items: [
+                                          { text: t("dashboard.index.title"), href: dashboard_path },
+                                          { text: t("imports.index.title"), href: imports_path },
+                                        ]) %>
+<% end %>
+
+<%= h1 t("imports.bulk_remove_parents.show.title") %>
+
+<%= form_with url: imports_bulk_remove_parents_path(import_type: @import.class.name.underscore, import_id: @import.id),
+              method: :post,
+              builder: GOVUKDesignSystemFormBuilder::FormBuilder,
+              local: true do |f| %>
+
+    <p class="nhsuk-body">
+      <%= t("imports.bulk_remove_parents.show.description") %>
+    </p>
+
+    <%= f.govuk_radio_buttons_fieldset :remove_option do %>
+      <%= f.govuk_radio_button :remove_option,
+                               "unconsented",
+                               label: { text: t("imports.bulk_remove_parents.show.options.unconsented_only") },
+                               hint: { text: t("imports.bulk_remove_parents.show.warning") },
+                               checked: false %>
+
+      <%= f.govuk_radio_button :remove_option,
+                               "all",
+                               label: { text: t("imports.bulk_remove_parents.show.options.all") },
+                               checked: false %>
+    <% end %>
+
+    <div class="nhsuk-button-group">
+      <%= f.govuk_submit t("imports.bulk_remove_parents.show.buttons.continue"), class: "govuk-button govuk-button--warning" %>
+      <%= link_to t("imports.bulk_remove_parents.show.buttons.cancel"), imports_path, secondary: true %>
+    </div>
+  <% end %>

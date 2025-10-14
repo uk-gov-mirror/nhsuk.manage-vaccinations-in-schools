@@ -11,6 +11,12 @@
   <%= render AppImportStatusComponent.new(import: import) %>
 </p>
 
+<% if import.is_a?(PatientImport) && import.processed? && import.parent_relationships.present? %>
+  <p>
+    <%= link_to "Bulk remove relationships", imports_bulk_remove_parents_path(import.class.name.underscore, import.id) %>
+  </p>
+<% end %>
+
 <%= render AppCardComponent.new do |card| %>
   <% card.with_heading(level: 2) { "Details" } %>
 

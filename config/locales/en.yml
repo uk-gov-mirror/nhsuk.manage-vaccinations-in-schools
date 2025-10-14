@@ -614,6 +614,21 @@ en:
     notices:
       index:
         no_results: There are currently no important notices.
+    bulk_remove_parents:
+      show:
+        title: Bulk remove relationships
+        caption: Import
+        description: >
+          If there is a problem in the class list import, you can bulk remove
+          relationships between parents and children.
+        options:
+          unconsented_only: Remove relationships where parents haven't given consent yet
+          all: Remove relationships for all parents and children
+        warning: >
+          This will also remove any consent responses given by parents for their children.
+        buttons:
+          continue: Continue
+          cancel: Cancel
   mailers:
     consent_form_mailer:
       reasons_for_refusal:
