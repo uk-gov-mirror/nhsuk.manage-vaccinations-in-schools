@@ -64,6 +64,7 @@ class Team < ApplicationRecord
            through: :location_year_groups
 
   has_and_belongs_to_many :users
+  has_and_belongs_to_many :patients, through: :patient_teams
 
   normalizes :email, with: EmailAddressNormaliser.new
   normalizes :phone, with: PhoneNumberNormaliser.new

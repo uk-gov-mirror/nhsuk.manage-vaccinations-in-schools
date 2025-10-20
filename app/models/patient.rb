@@ -90,6 +90,7 @@ class Patient < ApplicationRecord
   has_and_belongs_to_many :class_imports
   has_and_belongs_to_many :cohort_imports
   has_and_belongs_to_many :immunisation_imports
+  has_and_belongs_to_many :teams, through: :patient_teams
 
   # https://www.datadictionary.nhs.uk/attributes/person_gender_code.html
   enum :gender_code, { not_known: 0, male: 1, female: 2, not_specified: 9 }
