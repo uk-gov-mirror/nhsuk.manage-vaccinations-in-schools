@@ -4,18 +4,18 @@
 #
 # Table name: patient_teams
 #
-#  contributing_subqueries :text             not null, is an Array
-#  created_at              :datetime         not null
-#  updated_at              :datetime         not null
-#  patient_id              :bigint           not null, primary key
-#  team_id                 :bigint           not null, primary key
+#  sources    :text             not null, is an Array
+#  created_at :datetime         not null
+#  updated_at :datetime         not null
+#  patient_id :bigint           not null, primary key
+#  team_id    :bigint           not null, primary key
 #
 # Indexes
 #
-#  index_patient_teams_on_contributing_subqueries  (contributing_subqueries) USING gin
-#  index_patient_teams_on_patient_id               (patient_id)
-#  index_patient_teams_on_patient_id_and_team_id   (patient_id,team_id)
-#  index_patient_teams_on_team_id                  (team_id)
+#  index_patient_teams_on_patient_id              (patient_id)
+#  index_patient_teams_on_patient_id_and_team_id  (patient_id,team_id)
+#  index_patient_teams_on_sources                 (sources) USING gin
+#  index_patient_teams_on_team_id                 (team_id)
 #
 # Foreign Keys
 #
@@ -43,13 +43,13 @@ class PatientTeam < ApplicationRecord
     end
 
     connection.execute <<-SQL
-      INSERT INTO patient_teams (patient_id, team_id, contributing_subqueries)
+      INSERT INTO patient_teams (patient_id, team_id, sources)
       VALUES (#{connection.quote(patient_id)}, #{connection.quote(team_id)}, ARRAY['#{type}'])
       ON CONFLICT (team_id, patient_id) DO UPDATE
-      SET contributing_subqueries = CASE 
-        WHEN patient_teams.contributing_subqueries @> ARRAY['#{type}'] 
-        THEN patient_teams.contributing_subqueries
-        ELSE array_append(patient_teams.contributing_subqueries, '#{type}')
+      SET sources = CASE 
+        WHEN patient_teams.sources @> ARRAY['#{type}'] 
+        THEN patient_teams.sources
+        ELSE array_append(patient_teams.sources, '#{type}')
       END;
     SQL
   end
@@ -57,7 +57,7 @@ class PatientTeam < ApplicationRecord
   def self.remove_identifier(type, patient_id, team_id)
     connection.execute <<-SQL
       UPDATE patient_teams
-      SET contributing_subqueries = array_remove(contributing_subqueries, '#{type}')
+      SET sources = array_remove(sources, '#{type}')
       WHERE patient_id = #{connection.quote(patient_id)} AND team_id = #{connection.quote(team_id)};
     SQL
   end

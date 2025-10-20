@@ -119,4 +119,165 @@ class PatientLocation < ApplicationRecord
   def destroy_if_safe!
     destroy! if safe_to_destroy?
   end
+
+  def self.update_all(updates, conditions = nil, options = {})
+    transaction do
+      old_values = "temp_old_pairs"
+      source = PatientTeam.pls_subquery_name
+
+      affected_columns =
+        if updates.is_a?(Hash)
+          updates.keys.map(&:to_s) & %w[patient_id academic_year location_id]
+        else
+          %w[patient_id team_id]
+        end
+
+      if affected_columns.present?
+        rows_to_update =
+          subquery_for_patient_teams_changes(conditions, options).select(
+            "patient_locations.id",
+            "patient_locations.patient_id",
+            "sessions.team_id"
+          ).to_sql
+
+        connection.execute <<-SQL
+          CREATE TEMPORARY TABLE #{old_values} (
+            patient_locations_id bigint,
+            patient_id bigint,
+            team_id bigint
+          ) ON COMMIT DROP;
+          INSERT INTO #{old_values}
+          SELECT 
+            "patient_locations.id",
+            "patient_locations.patient_id",
+            "sessions.team_id" FROM (#{rows_to_update}) AS tmp;
+        SQL
+      end
+
+      count = super(updates, conditions, options)
+
+      connection.execute <<-SQL
+        UPDATE patient_teams pt
+        SET sources = array_remove(sources, '#{source}')
+        FROM (
+          SELECT DISTINCT old.patient_id, old.team_id
+          FROM #{old_values} old
+          JOIN patient_locations pl ON old.id = pl.id
+          WHERE old.patient_id != pl.patient_id OR old.team_id != pl.team_id
+        ) AS changed_old
+        WHERE pt.patient_id = changed_old.patient_id AND pt.team_id = changed_old.team_id;
+      SQL
+
+      connection.execute <<-SQL
+        INSERT INTO patient_teams (patient_id, team_id, sources)
+        SELECT DISTINCT pl.patient_id, s.team_id, ARRAY['#{source}']
+        FROM #{old_values} old
+        INNER JOIN patient_location pl 
+          ON old.patient_locations_id = pl.id
+        INNER JOIN sessions s 
+          AND s.location_id = s.location_id
+          AND s.academic_year = s.academic_year 
+        ON CONFLICT (team_id, patient_id) DO UPDATE
+        SET sources = array_add(array_remove(sources,'#{source}'),'#{source}')
+      SQL
+
+      count
+    end
+  end
+
+  def self.destroy_all(conditions = nil, options = {})
+    transaction do
+      rows_to_delete =
+        subquery_for_patient_teams_changes(conditions, options)
+          .select("patient_locations.patient_id", "sessions.team_id")
+          .distinct
+          .to_sql
+
+      connection.execute <<-SQL
+        UPDATE patient_teams pt
+        SET sources = array_remove(sources, '#{type}')
+        FROM (#{rows_to_delete}) AS del
+        WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
+      SQL
+      super(conditions, options)
+    end
+  end
+
+  def self.subquery_for_patient_teams_changes(conditions, options)
+    scope = all
+    scope = scope.where(conditions) if conditions
+    scope = scope.limit(options[:limit]) if options[:limit]
+    scope = scope.order(options[:order]) if options[:order]
+    scope.joins_sessions
+  end
+  # private
+
+  after_create :sync_to_patient_team
+  after_update :sync_to_patient_team_if_changed
+  before_destroy :remove_from_patient_team
+
+  def sync_to_patient_team
+    Session
+      .where(location_id: location_id, academic_year: academic_year)
+      .distinct
+      .pluck(:team_id)
+      .each do |team_id|
+        PatientTeam.sync_record(
+          PatientTeam.pls_subquery_name,
+          patient_id,
+          team_id
+        )
+      end
+  end
+
+  def sync_to_patient_team_if_changed
+    if saved_change_to_patient_id? || saved_change_to_academic_year? ||
+         saved_change_to_location_id?
+      old_team_ids =
+        Session
+          .where(
+            location_id: location_id_before_last_save,
+            academic_year: academic_year_before_last_save
+          )
+          .distinct
+          .pluck(:team_id)
+      new_team_ids =
+        Session
+          .where(location_id: location_id, academic_year: academic_year)
+          .distinct
+          .pluck(:team_id)
+      unmodified_team_ids = old_team_ids & new_team_ids
+      old_team_ids -= unmodified_team_ids
+      new_team_ids -= unmodified_team_ids
+
+      old_team_ids.each do |old_team_id|
+        PatientTeam.remove_identifier(
+          PatientTeam.pls_subquery_name,
+          patient_id_before_last_save,
+          old_team_id
+        )
+      end
+      new_team_ids.each do |new_team_id|
+        PatientTeam.sync_record(
+          PatientTeam.pls_subquery_name,
+          patient_id,
+          new_team_id
+        )
+      end
+    end
+  end
+
+  def remove_from_patient_team
+    Session
+      .where(location_id: location_id, academic_year: academic_year)
+      .distinct
+      .pluck(:team_id)
+      .each do |team_id|
+        PatientTeam.remove_identifier(
+          PatientTeam.pls_subquery_name,
+          patient_id,
+          team_id
+        )
+      end
+  end
 end
