@@ -30,6 +30,8 @@ class PatientTeam < ApplicationRecord
 
   def self.pls_subquery_name = "pls"
 
+  def self.ars_subquery_name = "ars"
+
   def self.sync_record(
     type,
     patient_id,
@@ -42,23 +44,21 @@ class PatientTeam < ApplicationRecord
       remove_identifier(type, old_patient_id, old_team_id)
     end
 
-    connection.execute <<-SQL
-      INSERT INTO patient_teams (patient_id, team_id, sources)
-      VALUES (#{connection.quote(patient_id)}, #{connection.quote(team_id)}, ARRAY['#{type}'])
-      ON CONFLICT (team_id, patient_id) DO UPDATE
-      SET sources = CASE 
-        WHEN patient_teams.sources @> ARRAY['#{type}'] 
-        THEN patient_teams.sources
-        ELSE array_append(patient_teams.sources, '#{type}')
-      END;
-    SQL
+    pt =
+      PatientTeam.find_or_initialize_by(
+        patient_id: patient_id,
+        team_id: team_id
+      )
+    pt.sources = Array(pt.sources) | [type]
+    pt.save!
   end
 
   def self.remove_identifier(type, patient_id, team_id)
-    connection.execute <<-SQL
-      UPDATE patient_teams
-      SET sources = array_remove(sources, '#{type}')
-      WHERE patient_id = #{connection.quote(patient_id)} AND team_id = #{connection.quote(team_id)};
-    SQL
+    pt = find_by(patient_id:, team_id:)
+    return unless pt
+
+    pt.sources.delete(type)
+
+    pt.sources.empty? ? pt.destroy! : pt.save!
   end
 end

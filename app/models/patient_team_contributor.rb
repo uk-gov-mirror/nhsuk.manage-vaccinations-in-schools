@@ -5,6 +5,8 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       "patient_locations.patient_id"
+    when "archive_reasons"
+      "archive_reasons.patient_id"
     else
       raise "Unknown table for PatientTeamContributor"
     end
@@ -14,6 +16,8 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       "sessions.team_id"
+    when "archive_reasons"
+      "archive_reasons.team_id"
     else
       raise "Unknown table for PatientTeamContributor"
     end
@@ -23,6 +27,8 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       %w[patient_id academic_year location_id]
+    when "archive_reasons"
+      %w[patient_id team_id]
     else
       raise "Unknown table for PatientTeamContributor"
     end
@@ -32,6 +38,8 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       joins_sessions
+    when "archive_reasons"
+      all
     else
       raise "Unknown table for PatientTeamContributor"
     end
@@ -41,6 +49,8 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       PatientTeam.pls_subquery_name
+    when "archive_reasons"
+      PatientTeam.ars_subquery_name
     else
       raise "Unknown table for PatientTeamContributor"
     end

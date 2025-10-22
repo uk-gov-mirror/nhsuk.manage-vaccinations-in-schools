@@ -28,6 +28,10 @@
 #  fk_rails_...  (team_id => teams.id)
 #
 class ArchiveReason < ApplicationRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
+
   self.inheritance_column = nil
 
   belongs_to :team
@@ -48,4 +52,37 @@ class ArchiveReason < ApplicationRecord
             },
             if: :other?
   validates :other_details, absence: true, unless: :other?
+
+  after_create :sync_to_patient_team
+  after_update :sync_to_patient_team_if_changed
+  before_destroy :remove_from_patient_team
+
+  private
+
+  def sync_to_patient_team
+    PatientTeam.sync_record(PatientTeam.pls_subquery_name, patient_id, team_id)
+  end
+
+  def sync_to_patient_team_if_changed
+    if saved_change_to_patient_id? || saved_change_to_team_id?
+      PatientTeam.remove_identifier(
+        PatientTeam.pls_subquery_name,
+        patient_id_before_last_save,
+        team_id_before_last_save
+      )
+      PatientTeam.sync_record(
+        PatientTeam.pls_subquery_name,
+        patient_id,
+        team_id
+      )
+    end
+  end
+
+  def remove_from_patient_team
+    PatientTeam.remove_identifier(
+      PatientTeam.pls_subquery_name,
+      patient_id,
+      team_id
+    )
+  end
 end
