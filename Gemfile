@@ -4,7 +4,7 @@ source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby file: ".ruby-version"
-gem "rails", "~> 8.0.3"
+gem "rails", "8.1.0"
 
 # Framework gems
 gem "bootsnap", require: false
@@ -39,7 +39,9 @@ gem "fhir_models"
 gem "flipper"
 gem "flipper-active_record"
 gem "flipper-ui"
-gem "govuk-components"
+gem "govuk-components",
+    github: "thomasleese/govuk-components",
+    branch: "rails-8-1"
 gem "govuk_design_system_formbuilder"
 gem "govuk_markdown"
 gem "indefinite_article"
