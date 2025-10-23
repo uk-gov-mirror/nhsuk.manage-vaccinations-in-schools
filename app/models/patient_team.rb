@@ -32,6 +32,9 @@ class PatientTeam < ApplicationRecord
 
   def self.ars_subquery_name = "ars"
 
+  def self.vac_session_subquery_name = "vac_session"
+  def self.vac_ods_subquery_name = "vac_ods"
+
   def self.sync_record(
     type,
     patient_id,

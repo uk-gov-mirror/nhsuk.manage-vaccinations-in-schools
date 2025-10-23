@@ -9,6 +9,7 @@ class CreateEmptySourcesCleanupTriggerPatientTeams < ActiveRecord::Migration[
       RETURNS TRIGGER AS $$
       BEGIN
         DELETE FROM patient_teams WHERE sources = ARRAY[]::text[];
+        RETURN NULL;
       END;
       $$ LANGUAGE plpgsql;
 
