@@ -24,10 +24,30 @@
 #  fk_rails_...  (patient_id => patients.id)
 #
 
-class PatientLocation < ApplicationRecord
+class PatientLocation < PatientTeamContributingRecord
   class ActiveRecord_Relation < ActiveRecord::Relation
     include PatientTeamContributor
   end
+
+  # after_create :after_create_synced_to_patient_teams
+  # around_update :update_synced_to_patient_teams
+  # before_destroy :before_delete_synced_to_patient_teams
+  # around_save :test
+
+  # def after_create_synced_to_patient_teams
+  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
+  #   super
+  # end
+  #
+  # def update_synced_to_patient_teams
+  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
+  #   super
+  # end
+  #
+  # def before_delete_synced_to_patient_teams
+  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
+  #   super
+  # end
 
   audited associated_with: :patient
   has_associated_audits
@@ -122,81 +142,5 @@ class PatientLocation < ApplicationRecord
 
   def destroy_if_safe!
     destroy! if safe_to_destroy?
-  end
-
-  after_create :sync_to_patient_team
-  after_update :sync_to_patient_team_if_changed
-  before_destroy :remove_from_patient_team
-  around_save :test
-
-  def test
-    Rails.logger.debug
-  end
-
-  private
-
-  def sync_to_patient_team
-    Session
-      .where(location_id: location_id, academic_year: academic_year)
-      .distinct
-      .pluck(:team_id)
-      .each do |team_id|
-        PatientTeam.sync_record(
-          PatientTeam.patient_location_subquery_name,
-          patient_id,
-          team_id
-        )
-      end
-  end
-
-  def sync_to_patient_team_if_changed
-    if saved_change_to_patient_id? || saved_change_to_academic_year? ||
-         saved_change_to_location_id?
-      old_team_ids =
-        Session
-          .where(
-            location_id: location_id_before_last_save,
-            academic_year: academic_year_before_last_save
-          )
-          .distinct
-          .pluck(:team_id)
-      new_team_ids =
-        Session
-          .where(location_id: location_id, academic_year: academic_year)
-          .distinct
-          .pluck(:team_id)
-      unmodified_team_ids = old_team_ids & new_team_ids
-      old_team_ids -= unmodified_team_ids
-      new_team_ids -= unmodified_team_ids
-
-      old_team_ids.each do |old_team_id|
-        PatientTeam.remove_identifier(
-          PatientTeam.patient_location_subquery_name,
-          patient_id_before_last_save,
-          old_team_id
-        )
-      end
-      new_team_ids.each do |new_team_id|
-        PatientTeam.sync_record(
-          PatientTeam.patient_location_subquery_name,
-          patient_id,
-          new_team_id
-        )
-      end
-    end
-  end
-
-  def remove_from_patient_team
-    Session
-      .where(location_id: location_id, academic_year: academic_year)
-      .distinct
-      .pluck(:team_id)
-      .each do |team_id|
-        PatientTeam.remove_identifier(
-          PatientTeam.patient_location_subquery_name,
-          patient_id,
-          team_id
-        )
-      end
   end
 end

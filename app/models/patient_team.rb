@@ -41,32 +41,21 @@ class PatientTeam < ApplicationRecord
 
   def self.school_move_subquery_name = "school_move"
 
-  def self.sync_record(
-    type,
-    patient_id,
-    team_id,
-    old_patient_id: nil,
-    old_team_id: nil
-  )
-    if old_patient_id && old_team_id &&
-         (old_patient_id != patient_id || old_team_id != team_id)
-      remove_identifier(type, old_patient_id, old_team_id)
-    end
-
+  def self.sync_record(source, patient_id, team_id)
     pt =
       PatientTeam.find_or_initialize_by(
         patient_id: patient_id,
         team_id: team_id
       )
-    pt.sources = Array(pt.sources) | [type]
+    pt.sources = Array(pt.sources) | [source]
     pt.save!
   end
 
-  def self.remove_identifier(type, patient_id, team_id)
+  def self.remove_identifier(source, patient_id, team_id)
     pt = find_by(patient_id:, team_id:)
     return unless pt
 
-    pt.sources.delete(type)
+    pt.sources.delete(source)
 
     pt.sources.empty? ? pt.destroy! : pt.save!
   end
