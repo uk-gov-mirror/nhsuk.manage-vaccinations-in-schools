@@ -5,7 +5,7 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       {
-        PatientTeam.pls_subquery_name => {
+        PatientTeam.patient_location_subquery_name => {
           patient_id_source: "patient_locations.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins_sessions
@@ -13,36 +13,91 @@ module PatientTeamContributor
       }
     when "archive_reasons"
       {
-        PatientTeam.ars_subquery_name => {
+        PatientTeam.archive_reason_subquery_name => {
           patient_id_source: "archive_reasons.patient_id",
           team_id_source: "archive_reasons.team_id",
           contribution_scope: all
         }
       }
+    when "vaccination_records"
+      {
+        PatientTeam.vaccination_record_session_subquery_name => {
+          patient_id_source: "vaccination_records.patient_id",
+          team_id_source: "sessions.team_id",
+          contribution_scope: joins(:sessions)
+        },
+        PatientTeam.vaccination_record_ods_subquery_name => {
+          patient_id_source: "vaccination_records.paitent_id",
+          team_id_source: "tms.id",
+          contribution_scope: joins(join_teams_to_vaccinations_via_organisation)
+        }
+      }
+    when "school_moves"
+      {
+        PatientTeam.school_move_subquery_name => {
+          patient_id_source: "school_moves.patient_id",
+          team_id_source: "school_moves.team_id",
+          contribution_scope: where("archive_reasons.team_id IS NOT NULL")
+        },
+        PatientTeam.school_move_location_subquery_name => {
+          patient_id: "school_moves.patient_id",
+          team_id: "stm.team_id",
+          contribution_scope:
+            joins(join_subteams_to_school_moves_via_location).where(
+              "loc.type = 0"
+            )
+        }
+      }
     when "sessions"
       {
-        PatientTeam.pls_subquery_name => {
+        PatientTeam.patient_location_subquery_name => {
           patient_id_source: "patient_locations.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins_patient_locations
         },
-        PatientTeam.vac_session_subquery_name => {
+        PatientTeam.vaccination_record_session_subquery_name => {
           patient_id_source: "vaccination_records.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins(:vaccination_records)
         }
       }
-    else
-      raise "Unknown table for PatientTeamContributor"
-    end
-  end
-
-  def source
-    case table_name
-    when "patient_locations"
-      PatientTeam.pls_subquery_name
-    when "archive_reasons"
-      PatientTeam.ars_subquery_name
+    when "organisations"
+      {
+        PatientTeam.vaccination_record_ods_subquery_name => {
+          patient_id_source: "vacs.patient_id",
+          team_id_source: "teams.id",
+          contribution_scope:
+            joins(join_vaccination_records_to_organisation).joins(:teams)
+        }
+      }
+    when "teams"
+      {
+        PatientTeam.vaccination_record_ods_subquery_name => {
+          patient_id_source: "vacs.patient_id",
+          team_id_source: "teams.id",
+          contribution_scope:
+            joins(:organisations).joins(
+              join_vaccination_records_to_organisation
+            )
+        }
+      }
+    when "locations"
+      {
+        PatientTeam.school_move_location_subquery_name => {
+          patient_id_source: "schlm.patient_id",
+          team_id_source: "subteams.team_id",
+          contribution_scope:
+            joins(:subteams).joins(join_school_moves_to_location).where(type: 0)
+        }
+      }
+    when "subteams"
+      {
+        PatientTeam.school_move_location_subquery_name => {
+          patient_id_source: "school_moves.patient_id",
+          team_id_source: "subteams.id",
+          contribution_scope: joins(:schools)
+        }
+      }
     else
       raise "Unknown table for PatientTeamContributor"
     end
@@ -140,5 +195,39 @@ module PatientTeamContributor
 
       super
     end
+  end
+
+  private
+
+  def join_vaccination_records_to_organisation
+    <<-SQL
+      INNER JOIN vaccination_records vacs
+        ON vacs.performed_ods_code = organisation.ods_code
+    SQL
+  end
+
+  def join_teams_to_vaccinations_via_organisation
+    <<-SQL
+      INNER JOIN organisations org
+          ON vaccination_records.performed_ods_code = org.ods_code
+      INNER JOIN teams tms
+          ON org.id = tms.organisation_id
+    SQL
+  end
+
+  def join_subteams_to_school_moves_via_location
+    <<-SQL
+      INNER JOIN locations loc
+        ON school_moves.school_id = loc.id
+      INNER JOIN subteams stm
+        ON loc.subteam_id = stm.id
+    SQL
+  end
+
+  def join_school_moves_to_location
+    <<-SQL
+      INNER JOIN school_moves schlm
+        ON schlm.school_id = locations.id
+    SQL
   end
 end

@@ -60,18 +60,22 @@ class ArchiveReason < ApplicationRecord
   private
 
   def sync_to_patient_team
-    PatientTeam.sync_record(PatientTeam.pls_subquery_name, patient_id, team_id)
+    PatientTeam.sync_record(
+      PatientTeam.patient_location_subquery_name,
+      patient_id,
+      team_id
+    )
   end
 
   def sync_to_patient_team_if_changed
     if saved_change_to_patient_id? || saved_change_to_team_id?
       PatientTeam.remove_identifier(
-        PatientTeam.pls_subquery_name,
+        PatientTeam.patient_location_subquery_name,
         patient_id_before_last_save,
         team_id_before_last_save
       )
       PatientTeam.sync_record(
-        PatientTeam.pls_subquery_name,
+        PatientTeam.patient_location_subquery_name,
         patient_id,
         team_id
       )
@@ -80,7 +84,7 @@ class ArchiveReason < ApplicationRecord
 
   def remove_from_patient_team
     PatientTeam.remove_identifier(
-      PatientTeam.pls_subquery_name,
+      PatientTeam.patient_location_subquery_name,
       patient_id,
       team_id
     )

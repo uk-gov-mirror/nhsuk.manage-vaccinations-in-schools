@@ -28,12 +28,18 @@ class PatientTeam < ApplicationRecord
   belongs_to :patient
   belongs_to :team
 
-  def self.pls_subquery_name = "pls"
+  def self.patient_location_subquery_name = "patient_location_session"
 
-  def self.ars_subquery_name = "ars"
+  def self.archive_reason_subquery_name = "archive_reasons"
 
-  def self.vac_session_subquery_name = "vac_session"
-  def self.vac_ods_subquery_name = "vac_ods"
+  def self.vaccination_record_session_subquery_name =
+    "vaccination_record_session"
+
+  def self.vaccination_record_ods_subquery_name = "vaccination_record_ods"
+
+  def self.school_move_location_subquery_name = "school_move_location"
+
+  def self.school_move_subquery_name = "school_move"
 
   def self.sync_record(
     type,

@@ -127,6 +127,11 @@ class PatientLocation < ApplicationRecord
   after_create :sync_to_patient_team
   after_update :sync_to_patient_team_if_changed
   before_destroy :remove_from_patient_team
+  around_save :test
+
+  def test
+    Rails.logger.debug
+  end
 
   private
 
@@ -137,7 +142,7 @@ class PatientLocation < ApplicationRecord
       .pluck(:team_id)
       .each do |team_id|
         PatientTeam.sync_record(
-          PatientTeam.pls_subquery_name,
+          PatientTeam.patient_location_subquery_name,
           patient_id,
           team_id
         )
@@ -166,14 +171,14 @@ class PatientLocation < ApplicationRecord
 
       old_team_ids.each do |old_team_id|
         PatientTeam.remove_identifier(
-          PatientTeam.pls_subquery_name,
+          PatientTeam.patient_location_subquery_name,
           patient_id_before_last_save,
           old_team_id
         )
       end
       new_team_ids.each do |new_team_id|
         PatientTeam.sync_record(
-          PatientTeam.pls_subquery_name,
+          PatientTeam.patient_location_subquery_name,
           patient_id,
           new_team_id
         )
@@ -188,7 +193,7 @@ class PatientLocation < ApplicationRecord
       .pluck(:team_id)
       .each do |team_id|
         PatientTeam.remove_identifier(
-          PatientTeam.pls_subquery_name,
+          PatientTeam.patient_location_subquery_name,
           patient_id,
           team_id
         )
