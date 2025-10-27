@@ -105,13 +105,16 @@ module PatientTeamContributor
   def update_all(updates)
     transaction do
       contributing_subqueries.each do |key, subquery|
-        old_values = "temp_table_#{key}"
+        old_values = connection.quote("temp_table_#{key}")
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
 
         rows_to_update =
           subquery[:contribution_scope].select(
             "#{table_name}.id as old_id",
-            "#{subquery[:patient_id_source]} as old_patient_id",
-            "#{subquery[:team_id_source]} as old_team_id"
+            "#{patient_id_source} as old_patient_id",
+            "#{team_id_source} as old_team_id"
           ).to_sql
         connection.execute <<-SQL
           CREATE TEMPORARY TABLE #{old_values} (
@@ -127,20 +130,24 @@ module PatientTeamContributor
       super(updates)
 
       contributing_subqueries.each do |key, subquery|
-        old_values = "temp_table_#{key}"
+        old_values = connection.quote_string("temp_table_#{key}")
+        sterile_key = connection.quote_string(key.to_s)
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
         update_from =
           subquery[:contribution_scope]
             .select("old_patient_id", "old_team_id")
             .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
-            .where("old_patient_id != #{subquery[:patient_id_source]}")
-            .or(where("old_team_id != #{subquery[:team_id_source]}"))
+            .where("old_patient_id != #{patient_id_source}")
+            .or(where("old_team_id != #{team_id_source}"))
             .reorder("old_patient_id")
             .distinct
             .to_sql
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET (sources, updated_at) = (array_remove(sources, '#{key}'), CURRENT_TIMESTAMP)
+        SET (sources, updated_at) = (array_remove(sources, '#{sterile_key}'), CURRENT_TIMESTAMP)
         FROM (#{update_from}) AS pre_changed
         WHERE pt.patient_id = pre_changed.old_patient_id AND pt.team_id = pre_changed.old_team_id;
         SQL
@@ -148,8 +155,8 @@ module PatientTeamContributor
         insert_from =
           subquery[:contribution_scope]
             .select(
-              "#{subquery[:patient_id_source]} as patient_id",
-              "#{subquery[:team_id_source]} as team_id"
+              "#{patient_id_source} as patient_id",
+              "#{team_id_source} as team_id"
             )
             .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
             .reorder("patient_id")
@@ -158,10 +165,10 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         INSERT INTO patient_teams (patient_id, team_id, sources)
-        SELECT post_changed.patient_id, post_changed.team_id, ARRAY['#{key}']
+        SELECT post_changed.patient_id, post_changed.team_id, ARRAY['#{sterile_key}']
         FROM (#{insert_from}) as post_changed
         ON CONFLICT (team_id, patient_id) DO UPDATE
-        SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{key}'),'#{key}'), CURRENT_TIMESTAMP)
+        SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}'), CURRENT_TIMESTAMP)
         SQL
 
         connection.execute <<-SQL
@@ -174,11 +181,15 @@ module PatientTeamContributor
   def delete_all
     transaction do
       contributing_subqueries.each do |key, subquery|
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
+        sterile_key = connection.quote_string(key.to_s)
         delete_from =
           subquery[:contribution_scope]
             .select(
-              "#{subquery[:patient_id_source]} as patient_id",
-              "#{subquery[:team_id_source]} as team_id"
+              "#{patient_id_source} as patient_id",
+              "#{team_id_source} as team_id"
             )
             .reorder("patient_id")
             .distinct
@@ -186,7 +197,7 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET (sources, updated_at) = (array_remove(pt.sources, '#{key}'), CURRENT_TIMESTAMP)
+        SET (sources, updated_at) = (array_remove(pt.sources, '#{sterile_key}'), CURRENT_TIMESTAMP)
         FROM (#{delete_from}) AS del
         WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
         SQL
