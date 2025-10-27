@@ -83,14 +83,15 @@ class Patient < ApplicationRecord
   has_many :vaccination_records, -> { kept }
   has_many :vaccination_statuses
   has_many :patient_specific_directions
+  has_many :patient_teams
 
   has_many :locations, through: :patient_locations
   has_many :parents, through: :parent_relationships
+  has_many :teams, through: :patient_teams
 
   has_and_belongs_to_many :class_imports
   has_and_belongs_to_many :cohort_imports
   has_and_belongs_to_many :immunisation_imports
-  has_and_belongs_to_many :teams, through: :patient_teams
 
   # https://www.datadictionary.nhs.uk/attributes/person_gender_code.html
   enum :gender_code, { not_known: 0, male: 1, female: 2, not_specified: 9 }

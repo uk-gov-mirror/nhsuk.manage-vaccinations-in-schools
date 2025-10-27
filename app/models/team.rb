@@ -53,7 +53,9 @@ class Team < PatientTeamContributingRecord
   has_many :sessions
   has_many :subteams
   has_many :team_programmes, -> { joins(:programme).order(:"programmes.type") }
+  has_many :patient_teams
 
+  has_many :patients, through: :patient_teams
   has_many :community_clinics, through: :subteams
   has_many :locations, through: :subteams
   has_many :programmes, through: :team_programmes
@@ -67,7 +69,6 @@ class Team < PatientTeamContributingRecord
            through: :location_year_groups
 
   has_and_belongs_to_many :users
-  has_and_belongs_to_many :patients, through: :patient_teams
 
   normalizes :email, with: EmailAddressNormaliser.new
   normalizes :phone, with: PhoneNumberNormaliser.new

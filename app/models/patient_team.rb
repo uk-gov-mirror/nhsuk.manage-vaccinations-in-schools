@@ -42,11 +42,7 @@ class PatientTeam < ApplicationRecord
   def self.school_move_subquery_name = "school_move"
 
   def self.sync_record(source, patient_id, team_id)
-    pt =
-      PatientTeam.find_or_initialize_by(
-        patient_id: patient_id,
-        team_id: team_id
-      )
+    pt = find_or_initialize_by(patient_id: patient_id, team_id: team_id)
     pt.sources = Array(pt.sources) | [source]
     pt.save!
   end
