@@ -29,26 +29,6 @@ class PatientLocation < PatientTeamContributingRecord
     include PatientTeamContributor
   end
 
-  # after_create :after_create_synced_to_patient_teams
-  # around_update :update_synced_to_patient_teams
-  # before_destroy :before_delete_synced_to_patient_teams
-  # around_save :test
-
-  # def after_create_synced_to_patient_teams
-  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
-  #   super
-  # end
-  #
-  # def update_synced_to_patient_teams
-  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
-  #   super
-  # end
-  #
-  # def before_delete_synced_to_patient_teams
-  #   Rails.logger.debug "A GIG OL' D-BUG MESSAGE"
-  #   super
-  # end
-
   audited associated_with: :patient
   has_associated_audits
 

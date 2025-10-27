@@ -24,10 +24,10 @@ module PatientTeamContributor
         PatientTeam.vaccination_record_session_subquery_name => {
           patient_id_source: "vaccination_records.patient_id",
           team_id_source: "sessions.team_id",
-          contribution_scope: joins(:sessions)
+          contribution_scope: joins(:session)
         },
         PatientTeam.vaccination_record_ods_subquery_name => {
-          patient_id_source: "vaccination_records.paitent_id",
+          patient_id_source: "vaccination_records.patient_id",
           team_id_source: "tms.id",
           contribution_scope: joins(join_teams_to_vaccinations_via_organisation)
         }
@@ -37,11 +37,11 @@ module PatientTeamContributor
         PatientTeam.school_move_subquery_name => {
           patient_id_source: "school_moves.patient_id",
           team_id_source: "school_moves.team_id",
-          contribution_scope: where("archive_reasons.team_id IS NOT NULL")
+          contribution_scope: where("school_moves.team_id IS NOT NULL")
         },
         PatientTeam.school_move_location_subquery_name => {
-          patient_id: "school_moves.patient_id",
-          team_id: "stm.team_id",
+          patient_id_source: "school_moves.patient_id",
+          team_id_source: "stm.team_id",
           contribution_scope:
             joins(join_subteams_to_school_moves_via_location).where(
               "loc.type = 0"
@@ -76,9 +76,7 @@ module PatientTeamContributor
           patient_id_source: "vacs.patient_id",
           team_id_source: "teams.id",
           contribution_scope:
-            joins(:organisations).joins(
-              join_vaccination_records_to_organisation
-            )
+            joins(:organisation).joins(join_vaccination_records_to_organisation)
         }
       }
     when "locations"
@@ -87,15 +85,16 @@ module PatientTeamContributor
           patient_id_source: "schlm.patient_id",
           team_id_source: "subteams.team_id",
           contribution_scope:
-            joins(:subteams).joins(join_school_moves_to_location).where(type: 0)
+            joins(:subteam).joins(join_school_moves_to_location).where(type: 0)
         }
       }
     when "subteams"
       {
         PatientTeam.school_move_location_subquery_name => {
-          patient_id_source: "school_moves.patient_id",
+          patient_id_source: "schlm.patient_id",
           team_id_source: "subteams.id",
-          contribution_scope: joins(:schools)
+          contribution_scope:
+            joins(:schools).joins(join_school_moves_to_location)
         }
       }
     else
@@ -104,17 +103,10 @@ module PatientTeamContributor
   end
 
   def update_all(updates)
-    affected_columns =
-      if updates.is_a?(Hash)
-        updates.keys.map(&:to_s) & tracked_column_changes
-      else
-        tracked_column_changes
-      end
     transaction do
       contributing_subqueries.each do |key, subquery|
         old_values = "temp_table_#{key}"
 
-        next if affected_columns.blank?
         rows_to_update =
           subquery[:contribution_scope].select(
             "#{table_name}.id as old_id",
@@ -142,6 +134,7 @@ module PatientTeamContributor
             .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
             .where("old_patient_id != #{subquery[:patient_id_source]}")
             .or(where("old_team_id != #{subquery[:team_id_source]}"))
+            .reorder("old_patient_id")
             .distinct
             .to_sql
 
@@ -159,6 +152,7 @@ module PatientTeamContributor
               "#{subquery[:team_id_source]} as team_id"
             )
             .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
+            .reorder("patient_id")
             .distinct
             .to_sql
 
@@ -182,6 +176,7 @@ module PatientTeamContributor
               "#{subquery[:patient_id_source]} as patient_id",
               "#{subquery[:team_id_source]} as team_id"
             )
+            .reorder("patient_id")
             .distinct
             .to_sql
 
@@ -202,7 +197,7 @@ module PatientTeamContributor
   def join_vaccination_records_to_organisation
     <<-SQL
       INNER JOIN vaccination_records vacs
-        ON vacs.performed_ods_code = organisation.ods_code
+        ON vacs.performed_ods_code = organisations.ods_code
     SQL
   end
 
