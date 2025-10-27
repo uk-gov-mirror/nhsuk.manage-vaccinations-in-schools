@@ -163,6 +163,10 @@ module PatientTeamContributor
         ON CONFLICT (team_id, patient_id) DO UPDATE
         SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{key}'),'#{key}'), CURRENT_TIMESTAMP)
         SQL
+
+        connection.execute <<-SQL
+          DROP TABLE IF EXISTS #{old_values};
+        SQL
       end
     end
   end
