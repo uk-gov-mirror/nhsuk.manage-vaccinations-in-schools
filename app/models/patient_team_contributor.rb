@@ -105,7 +105,7 @@ module PatientTeamContributor
   def update_all(updates)
     transaction do
       contributing_subqueries.each do |key, subquery|
-        old_values = connection.quote("temp_table_#{key}")
+        old_values = connection.quote_table_name("temp_table_#{key}")
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
@@ -122,7 +122,7 @@ module PatientTeamContributor
             old_patient_id bigint,
             old_team_id bigint
           ) ON COMMIT DROP;
-          INSERT INTO #{old_values}
+          INSERT INTO #{old_values} (old_id, old_patient_id, old_team_id)
           #{rows_to_update};
         SQL
       end
@@ -130,7 +130,7 @@ module PatientTeamContributor
       super(updates)
 
       contributing_subqueries.each do |key, subquery|
-        old_values = connection.quote_string("temp_table_#{key}")
+        old_values = connection.quote_table_name("temp_table_#{key}")
         sterile_key = connection.quote_string(key.to_s)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
