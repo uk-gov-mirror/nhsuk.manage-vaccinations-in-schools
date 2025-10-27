@@ -68,7 +68,10 @@
 #  fk_rails_...  (supplied_by_user_id => users.id)
 #  fk_rails_...  (vaccine_id => vaccines.id)
 #
-class VaccinationRecord < ApplicationRecord
+class VaccinationRecord < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   include Discard::Model
   include HasDoseVolume
   include Notable

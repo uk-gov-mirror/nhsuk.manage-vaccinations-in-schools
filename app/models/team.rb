@@ -31,7 +31,10 @@
 #
 #  fk_rails_...  (organisation_id => organisations.id)
 #
-class Team < ApplicationRecord
+class Team < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   include DaysBeforeToWeeksBefore
   include HasLocationProgrammeYearGroups
 

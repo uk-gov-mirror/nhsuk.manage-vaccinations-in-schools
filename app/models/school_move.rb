@@ -27,7 +27,10 @@
 #  fk_rails_...  (school_id => locations.id)
 #  fk_rails_...  (team_id => teams.id)
 #
-class SchoolMove < ApplicationRecord
+class SchoolMove < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   audited associated_with: :patient
 
   include Schoolable

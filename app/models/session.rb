@@ -30,7 +30,10 @@
 #
 #  fk_rails_...  (team_id => teams.id)
 #
-class Session < ApplicationRecord
+class Session < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   include Consentable
   include DaysBeforeToWeeksBefore
   include Delegatable

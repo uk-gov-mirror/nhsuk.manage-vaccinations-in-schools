@@ -22,7 +22,10 @@
 #
 #  fk_rails_...  (team_id => teams.id)
 #
-class Subteam < ApplicationRecord
+class Subteam < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   audited associated_with: :team
   has_associated_audits
 

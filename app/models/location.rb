@@ -36,7 +36,10 @@
 #
 #  fk_rails_...  (subteam_id => subteams.id)
 #
-class Location < ApplicationRecord
+class Location < PatientTeamContributingRecord
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
   include AddressConcern
   include HasLocationProgrammeYearGroups
   include ODSCodeConcern
