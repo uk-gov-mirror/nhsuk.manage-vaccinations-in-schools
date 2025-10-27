@@ -14,7 +14,7 @@ class EnqueueVaccinationsSearchInNHSJob < ApplicationJob
     programme_types ||= default_programme_types
     programmes = Programme.where(type: programme_types)
 
-    patient_ids = Set.new
+    patient_ids = []
 
     if Flipper.enabled?(:imms_api_enqueue_session_searches)
       patient_ids += patient_ids_session_searches(programmes:)
@@ -25,7 +25,7 @@ class EnqueueVaccinationsSearchInNHSJob < ApplicationJob
     end
 
     if patient_ids.any?
-      SearchVaccinationRecordsInNHSJob.perform_bulk(patient_ids.zip)
+      SearchVaccinationRecordsInNHSJob.perform_bulk(patient_ids.uniq.zip)
     end
   end
 
