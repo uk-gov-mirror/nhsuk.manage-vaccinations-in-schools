@@ -102,7 +102,7 @@ module PatientTeamContributor
     end
   end
 
-  def update_all(updates)
+  def update_all_with_patient_team_sync(updates)
     transaction do
       contributing_subqueries.each do |key, subquery|
         old_values = connection.quote_table_name("temp_table_#{key}")
@@ -127,7 +127,7 @@ module PatientTeamContributor
         SQL
       end
 
-      super(updates)
+      update_all(updates)
 
       contributing_subqueries.each do |key, subquery|
         old_values = connection.quote_table_name("temp_table_#{key}")
@@ -178,7 +178,7 @@ module PatientTeamContributor
     end
   end
 
-  def delete_all
+  def delete_all_with_patient_team_sync
     transaction do
       contributing_subqueries.each do |key, subquery|
         patient_id_source =
@@ -203,7 +203,33 @@ module PatientTeamContributor
         SQL
       end
 
-      super
+      delete_all
+    end
+  end
+
+  def sync_patient_teams
+    transaction do
+      contributing_subqueries.each do |key, subquery|
+        sterile_key = connection.quote_string(key.to_s)
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
+        insert_from =
+          subquery[:contribution_scope]
+            .select(
+              "#{patient_id_source} as patient_id",
+              "#{team_id_source} as team_id"
+            )
+            .distinct
+            .to_sql
+        connection.execute <<-SQL
+          INSERT INTO patient_teams (patient_id, team_id, sources)
+          SELECT alias.patient_id, alias.team_id, ARRAY['#{sterile_key}']
+            FROM (#{insert_from}) as alias
+          ON CONFLICT (team_id, patient_id) DO UPDATE
+            SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}'), CURRENT_TIMESTAMP)
+        SQL
+      end
     end
   end
 
