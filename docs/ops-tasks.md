@@ -19,7 +19,7 @@ session.patient_locations.all?(&:safe_to_destroy?)
 session.patients.update_all_with_patient_team_sync(
   cohort_id: nil,
   home_educated: false,
-  school_id: nil,
+  school_id: nil
 )
 
 # removes all patients from the session
