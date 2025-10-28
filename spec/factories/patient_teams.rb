@@ -23,7 +23,7 @@
 #  fk_rails_...  (team_id => teams.id) ON DELETE => cascade
 #
 FactoryBot.define do
-  factory :patient_team, class: "PatientTeam" do
+  factory :patient_team do
     patient
     team
 
@@ -43,15 +43,6 @@ FactoryBot.define do
 
     trait :via_school_move do
       sources { [PatientTeam.school_move_subquery_name] }
-    end
-
-    trait :multiple_sources do
-      sources do
-        [
-          PatientTeam.patient_location_subquery_name,
-          PatientTeam.vaccination_record_session_subquery_name
-        ]
-      end
     end
   end
 end
