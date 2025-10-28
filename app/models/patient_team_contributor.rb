@@ -148,7 +148,7 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET (sources, updated_at) = (array_remove(sources, '#{sterile_key}'), CURRENT_TIMESTAMP)
+        SET sources = array_remove(sources, '#{sterile_key}')
         FROM (#{update_from}) AS pre_changed
         WHERE pt.patient_id = pre_changed.old_patient_id AND pt.team_id = pre_changed.old_team_id;
         SQL
@@ -169,7 +169,7 @@ module PatientTeamContributor
         SELECT post_changed.patient_id, post_changed.team_id, ARRAY['#{sterile_key}']
         FROM (#{insert_from}) as post_changed
         ON CONFLICT (team_id, patient_id) DO UPDATE
-        SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}'), CURRENT_TIMESTAMP)
+        SET sources = array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}')
         SQL
 
         connection.execute <<-SQL
@@ -198,7 +198,7 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET (sources, updated_at) = (array_remove(pt.sources, '#{sterile_key}'), CURRENT_TIMESTAMP)
+        SET sources = array_remove(pt.sources, '#{sterile_key}')
         FROM (#{delete_from}) AS del
         WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
         SQL
@@ -228,7 +228,7 @@ module PatientTeamContributor
           SELECT alias.patient_id, alias.team_id, ARRAY['#{sterile_key}']
             FROM (#{insert_from}) as alias
           ON CONFLICT (team_id, patient_id) DO UPDATE
-            SET (sources, updated_at) = (array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}'), CURRENT_TIMESTAMP)
+            SET sources = array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}')
         SQL
       end
     end

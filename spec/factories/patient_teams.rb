@@ -5,8 +5,6 @@
 # Table name: patient_teams
 #
 #  sources    :text             not null, is an Array
-#  created_at :datetime         not null
-#  updated_at :datetime         not null
 #  patient_id :bigint           not null, primary key
 #  team_id    :bigint           not null, primary key
 #

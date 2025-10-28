@@ -68,13 +68,13 @@ class PatientTeamContributingRecord < ApplicationRecord
       .contributing_subqueries
       .transform_values do |subquery|
         subquery
-            .fetch(:contribution_scope)
-            .select(
-              "#{subquery.fetch(:patient_id_source)} as patient_id",
-              "#{subquery.fetch(:team_id_source)} as team_id"
-            )
-            .distinct
-            .map { |rec| [rec.patient_id, rec.team_id] }
+          .fetch(:contribution_scope)
+          .select(
+            "#{subquery.fetch(:patient_id_source)} as patient_id",
+            "#{subquery.fetch(:team_id_source)} as team_id"
+          )
+          .distinct
+          .map { |rec| [rec.patient_id, rec.team_id] }
       end
   end
 end

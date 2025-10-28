@@ -602,8 +602,6 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_27_190936) do
     t.bigint "patient_id", null: false
     t.bigint "team_id", null: false
     t.text "sources", null: false, array: true
-    t.datetime "created_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
-    t.datetime "updated_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
     t.index ["patient_id", "team_id"], name: "index_patient_teams_on_patient_id_and_team_id"
     t.index ["patient_id"], name: "index_patient_teams_on_patient_id"
     t.index ["sources"], name: "index_patient_teams_on_sources", using: :gin
