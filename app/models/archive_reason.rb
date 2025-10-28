@@ -27,7 +27,7 @@
 #  fk_rails_...  (patient_id => patients.id)
 #  fk_rails_...  (team_id => teams.id)
 #
-class ArchiveReason < ApplicationRecord
+class ArchiveReason < PatientTeamContributingRecord
   class ActiveRecord_Relation < ActiveRecord::Relation
     include PatientTeamContributor
   end
