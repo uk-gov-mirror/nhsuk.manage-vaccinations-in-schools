@@ -4,7 +4,7 @@
 #
 # Table name: patient_teams
 #
-#  sources    :text             not null, is an Array
+#  sources    :integer          not null, is an Array
 #  patient_id :bigint           not null, primary key
 #  team_id    :bigint           not null, primary key
 #
@@ -24,23 +24,6 @@ FactoryBot.define do
   factory :patient_team do
     patient
     team
-
-    sources { [PatientTeam.patient_location_subquery_name] }
-
-    trait :via_patient_location do
-      sources { [PatientTeam.patient_location_subquery_name] }
-    end
-
-    trait :via_archive_reason do
-      sources { [PatientTeam.archive_reason_subquery_name] }
-    end
-
-    trait :via_vaccination_record do
-      sources { [PatientTeam.vaccination_record_session_subquery_name] }
-    end
-
-    trait :via_school_move do
-      sources { [PatientTeam.school_move_subquery_name] }
-    end
+    sources { %i[patient_location] }
   end
 end

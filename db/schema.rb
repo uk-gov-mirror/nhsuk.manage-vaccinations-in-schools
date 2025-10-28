@@ -601,7 +601,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_10_27_190936) do
   create_table "patient_teams", primary_key: ["team_id", "patient_id"], force: :cascade do |t|
     t.bigint "patient_id", null: false
     t.bigint "team_id", null: false
-    t.text "sources", null: false, array: true
+    t.integer "sources", null: false, array: true
     t.index ["patient_id", "team_id"], name: "index_patient_teams_on_patient_id_and_team_id"
     t.index ["patient_id"], name: "index_patient_teams_on_patient_id"
     t.index ["sources"], name: "index_patient_teams_on_sources", using: :gin

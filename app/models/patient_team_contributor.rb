@@ -5,7 +5,7 @@ module PatientTeamContributor
     case table_name
     when "patient_locations"
       {
-        PatientTeam.patient_location_subquery_name => {
+        patient_location: {
           patient_id_source: "patient_locations.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins_sessions
@@ -13,7 +13,7 @@ module PatientTeamContributor
       }
     when "archive_reasons"
       {
-        PatientTeam.archive_reason_subquery_name => {
+        archive_reason: {
           patient_id_source: "archive_reasons.patient_id",
           team_id_source: "archive_reasons.team_id",
           contribution_scope: all
@@ -21,12 +21,12 @@ module PatientTeamContributor
       }
     when "vaccination_records"
       {
-        PatientTeam.vaccination_record_session_subquery_name => {
+        vaccination_record_session: {
           patient_id_source: "vaccination_records.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins(:session)
         },
-        PatientTeam.vaccination_record_ods_subquery_name => {
+        vaccination_record_organisation: {
           patient_id_source: "vaccination_records.patient_id",
           team_id_source: "tms.id",
           contribution_scope: joins(join_teams_to_vaccinations_via_organisation)
@@ -34,12 +34,12 @@ module PatientTeamContributor
       }
     when "school_moves"
       {
-        PatientTeam.school_move_subquery_name => {
+        school_move_team: {
           patient_id_source: "school_moves.patient_id",
           team_id_source: "school_moves.team_id",
           contribution_scope: where("school_moves.team_id IS NOT NULL")
         },
-        PatientTeam.school_move_location_subquery_name => {
+        school_move_school: {
           patient_id_source: "school_moves.patient_id",
           team_id_source: "stm.team_id",
           contribution_scope:
@@ -50,12 +50,12 @@ module PatientTeamContributor
       }
     when "sessions"
       {
-        PatientTeam.patient_location_subquery_name => {
+        patient_location: {
           patient_id_source: "patient_locations.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins_patient_locations
         },
-        PatientTeam.vaccination_record_session_subquery_name => {
+        vaccination_record_session: {
           patient_id_source: "vaccination_records.patient_id",
           team_id_source: "sessions.team_id",
           contribution_scope: joins(:vaccination_records)
@@ -63,7 +63,7 @@ module PatientTeamContributor
       }
     when "organisations"
       {
-        PatientTeam.vaccination_record_ods_subquery_name => {
+        vaccination_record_organisation: {
           patient_id_source: "vacs.patient_id",
           team_id_source: "teams.id",
           contribution_scope:
@@ -72,7 +72,7 @@ module PatientTeamContributor
       }
     when "teams"
       {
-        PatientTeam.vaccination_record_ods_subquery_name => {
+        vaccination_record_organisation: {
           patient_id_source: "vacs.patient_id",
           team_id_source: "teams.id",
           contribution_scope:
@@ -81,7 +81,7 @@ module PatientTeamContributor
       }
     when "locations"
       {
-        PatientTeam.school_move_location_subquery_name => {
+        school_move_school: {
           patient_id_source: "schlm.patient_id",
           team_id_source: "subteams.team_id",
           contribution_scope:
@@ -90,7 +90,7 @@ module PatientTeamContributor
       }
     when "subteams"
       {
-        PatientTeam.school_move_location_subquery_name => {
+        school_move_school: {
           patient_id_source: "schlm.patient_id",
           team_id_source: "subteams.id",
           contribution_scope:
@@ -131,7 +131,7 @@ module PatientTeamContributor
 
       contributing_subqueries.each do |key, subquery|
         old_values = connection.quote_table_name("temp_table_#{key}")
-        sterile_key = connection.quote_string(key.to_s)
+        sterile_key = PatientTeam.sources.fetch(key.to_s)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
@@ -148,7 +148,7 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET sources = array_remove(sources, '#{sterile_key}')
+        SET sources = array_remove(sources, #{sterile_key})
         FROM (#{update_from}) AS pre_changed
         WHERE pt.patient_id = pre_changed.old_patient_id AND pt.team_id = pre_changed.old_team_id;
         SQL
@@ -166,10 +166,10 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         INSERT INTO patient_teams (patient_id, team_id, sources)
-        SELECT post_changed.patient_id, post_changed.team_id, ARRAY['#{sterile_key}']
+        SELECT post_changed.patient_id, post_changed.team_id, ARRAY[#{sterile_key}]
         FROM (#{insert_from}) as post_changed
         ON CONFLICT (team_id, patient_id) DO UPDATE
-        SET sources = array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}')
+        SET sources = array_append(array_remove(patient_teams.sources,#{sterile_key}),#{sterile_key})
         SQL
 
         connection.execute <<-SQL
@@ -185,7 +185,7 @@ module PatientTeamContributor
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
-        sterile_key = connection.quote_string(key.to_s)
+        sterile_key = PatientTeam.sources.fetch(key.to_s)
         delete_from =
           subquery[:contribution_scope]
             .select(
@@ -198,7 +198,7 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
-        SET sources = array_remove(pt.sources, '#{sterile_key}')
+        SET sources = array_remove(pt.sources, #{sterile_key})
         FROM (#{delete_from}) AS del
         WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
         SQL
@@ -211,7 +211,7 @@ module PatientTeamContributor
   def sync_patient_teams
     transaction do
       contributing_subqueries.each do |key, subquery|
-        sterile_key = connection.quote_string(key.to_s)
+        sterile_key = PatientTeam.sources.fetch(key.to_s)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
@@ -225,10 +225,10 @@ module PatientTeamContributor
             .to_sql
         connection.execute <<-SQL
           INSERT INTO patient_teams (patient_id, team_id, sources)
-          SELECT alias.patient_id, alias.team_id, ARRAY['#{sterile_key}']
+          SELECT alias.patient_id, alias.team_id, ARRAY[#{sterile_key}]
             FROM (#{insert_from}) as alias
           ON CONFLICT (team_id, patient_id) DO UPDATE
-            SET sources = array_append(array_remove(patient_teams.sources,'#{sterile_key}'),'#{sterile_key}')
+            SET sources = array_append(array_remove(patient_teams.sources,#{sterile_key}),#{sterile_key})
         SQL
       end
     end

@@ -4,7 +4,7 @@
 #
 # Table name: patient_teams
 #
-#  sources    :text             not null, is an Array
+#  sources    :integer          not null, is an Array
 #  patient_id :bigint           not null, primary key
 #  team_id    :bigint           not null, primary key
 #
@@ -21,23 +21,21 @@
 #  fk_rails_...  (team_id => teams.id) ON DELETE => cascade
 #
 class PatientTeam < ApplicationRecord
+  extend ArrayEnum
+
   self.primary_key = %i[team_id patient_id]
 
   belongs_to :patient
   belongs_to :team
 
-  def self.patient_location_subquery_name = "patient_location_session"
-
-  def self.archive_reason_subquery_name = "archive_reasons"
-
-  def self.vaccination_record_session_subquery_name =
-    "vaccination_record_session"
-
-  def self.vaccination_record_ods_subquery_name = "vaccination_record_ods"
-
-  def self.school_move_location_subquery_name = "school_move_location"
-
-  def self.school_move_subquery_name = "school_move"
+  array_enum sources: {
+               patient_location: 0,
+               archive_reason: 1,
+               vaccination_record_session: 2,
+               vaccination_record_organisation: 3,
+               school_move_team: 4,
+               school_move_school: 5
+             }
 
   def self.sync_record(source, patient_id, team_id)
     pt = find_or_initialize_by(patient_id: patient_id, team_id: team_id)
