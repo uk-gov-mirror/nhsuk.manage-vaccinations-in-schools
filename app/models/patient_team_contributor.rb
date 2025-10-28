@@ -139,8 +139,9 @@ module PatientTeamContributor
           subquery[:contribution_scope]
             .select("old_patient_id", "old_team_id")
             .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
-            .where("old_patient_id != #{patient_id_source}")
-            .or(where("old_team_id != #{team_id_source}"))
+            .where(
+              "old_patient_id != #{patient_id_source} OR old_team_id != #{team_id_source}"
+            )
             .reorder("old_patient_id")
             .distinct
             .to_sql
