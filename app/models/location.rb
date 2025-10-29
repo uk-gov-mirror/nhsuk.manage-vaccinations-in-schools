@@ -43,7 +43,7 @@ class Location < ApplicationRecord
   include ODSCodeConcern
 
   class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
+    include ContributesToPatientTeams::Relation
   end
 
   self.inheritance_column = nil

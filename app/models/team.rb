@@ -37,7 +37,7 @@ class Team < ApplicationRecord
   include HasLocationProgrammeYearGroups
 
   class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
+    include ContributesToPatientTeams::Relation
   end
 
   audited associated_with: :organisation

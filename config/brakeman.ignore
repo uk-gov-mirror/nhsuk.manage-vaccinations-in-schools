@@ -1,29 +1,6 @@
 {
   "ignored_warnings": [
     {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "2c96c5d1abad4ce764ebfbe530a6fb2c59aa67da4d724bbbbcee6aa6ae77b9ce",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/patient_team_contributor.rb",
-      "line": 163,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "connection.execute(\"          INSERT INTO patient_teams (patient_id, team_id, sources)\\n            SELECT post_changed.patient_id, post_changed.team_id, ARRAY[#{PatientTeam.sources.fetch(key)}]\\n          FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").joins(\"INNER JOIN #{connection.quote_table_name(\"temp_table_#{key}\")} ON #{connection.quote_table_name(\"temp_table_#{key}\")}.id = #{table_name}.id\").reorder(\"patient_id\").distinct.to_sql}) as post_changed\\n            ON CONFLICT (team_id, patient_id) DO UPDATE\\n            SET sources = array_append(array_remove(patient_teams.sources,#{PatientTeam.sources.fetch(key)}),#{PatientTeam.sources.fetch(key)})\\n\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "PatientTeamContributor",
-        "method": "update_all_and_sync_patient_teams"
-      },
-      "user_input": "PatientTeam.sources.fetch(key)",
-      "confidence": "High",
-      "cwe_id": [
-        89
-      ],
-      "note": "We get the integer value from an enum."
-    },
-    {
       "warning_type": "File Access",
       "warning_code": 16,
       "fingerprint": "2d210ea9765576c7e2daeeab6615fd785dc531224c2bb3ffab15d8d64a45fd14",
@@ -49,40 +26,17 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "356e0afc45776565ae09193828e3e19f74b8617e489e141adadde21d875ebb78",
+      "fingerprint": "b83cc4a5238e94599b0c97a18742f2a9f8894a9a44b5e411e16d21814f4d49f9",
       "check_name": "SQL",
       "message": "Possible SQL injection",
-      "file": "app/models/patient_team_contributor.rb",
-      "line": 230,
-      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
-      "code": "connection.execute(\"          INSERT INTO patient_teams (patient_id, team_id, sources)\\n          SELECT alias.patient_id, alias.team_id, ARRAY[#{PatientTeam.sources.fetch(key)}]\\n            FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").distinct.to_sql}) as alias\\n          ON CONFLICT (team_id, patient_id) DO UPDATE\\n            SET sources = array_append(array_remove(patient_teams.sources,#{PatientTeam.sources.fetch(key)}),#{PatientTeam.sources.fetch(key)})\\n\")",
-      "render_path": null,
-      "location": {
-        "type": "method",
-        "class": "PatientTeamContributor",
-        "method": "sync_patient_teams"
-      },
-      "user_input": "PatientTeam.sources.fetch(key)",
-      "confidence": "High",
-      "cwe_id": [
-        89
-      ],
-      "note": "We get the integer value from an enum."
-    },
-    {
-      "warning_type": "SQL Injection",
-      "warning_code": 0,
-      "fingerprint": "7973b11aac35b70dd2329590fb36cc534aaaaa86f3ac27d8023277adf246c0e8",
-      "check_name": "SQL",
-      "message": "Possible SQL injection",
-      "file": "app/models/patient_team_contributor.rb",
-      "line": 199,
+      "file": "app/models/concerns/contributes_to_patient_teams.rb",
+      "line": 202,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.execute(\"        UPDATE patient_teams pt\\n        SET sources = array_remove(pt.sources, #{PatientTeam.sources.fetch(key.to_s)})\\n        FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").reorder(\"patient_id\").distinct.to_sql}) AS del\\n        WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;\\n\")",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "PatientTeamContributor",
+        "class": "ContributesToPatientTeams::Relation",
         "method": "delete_all_and_sync_patient_teams"
       },
       "user_input": "PatientTeam.sources.fetch(key.to_s)",
@@ -95,17 +49,63 @@
     {
       "warning_type": "SQL Injection",
       "warning_code": 0,
-      "fingerprint": "e5ca04eca26c96a55f3f611e6ea749f3f1eb0acfc5cd36f0d7b9bc9f3d03ec91",
+      "fingerprint": "bd2e6e36bdd91fd2a27faac793571195958b00b8c630d0df090cf9e3d4b3a93d",
       "check_name": "SQL",
       "message": "Possible SQL injection",
-      "file": "app/models/patient_team_contributor.rb",
-      "line": 133,
+      "file": "app/models/concerns/contributes_to_patient_teams.rb",
+      "line": 136,
       "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
       "code": "connection.execute(\"          UPDATE patient_teams pt\\n            SET sources = array_remove(sources, #{PatientTeam.sources.fetch(key)})\\n          FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").reorder(\"patient_id\").distinct.to_sql}) as pre_changed\\n            WHERE pt.patient_id = pre_changed.patient_id AND pt.team_id = pre_changed.team_id;\\n\")",
       "render_path": null,
       "location": {
         "type": "method",
-        "class": "PatientTeamContributor",
+        "class": "ContributesToPatientTeams::Relation",
+        "method": "update_all_and_sync_patient_teams"
+      },
+      "user_input": "PatientTeam.sources.fetch(key)",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "We get the integer value from an enum."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "be505fdf4f8fa3878cd65979622564cde6a996dcbac1f9a34fba5774c4c855c1",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/concerns/contributes_to_patient_teams.rb",
+      "line": 233,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "connection.execute(\"          INSERT INTO patient_teams (patient_id, team_id, sources)\\n          SELECT alias.patient_id, alias.team_id, ARRAY[#{PatientTeam.sources.fetch(key)}]\\n            FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").distinct.to_sql}) as alias\\n          ON CONFLICT (team_id, patient_id) DO UPDATE\\n            SET sources = array_append(array_remove(patient_teams.sources,#{PatientTeam.sources.fetch(key)}),#{PatientTeam.sources.fetch(key)})\\n\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ContributesToPatientTeams::Relation",
+        "method": "sync_patient_teams"
+      },
+      "user_input": "PatientTeam.sources.fetch(key)",
+      "confidence": "High",
+      "cwe_id": [
+        89
+      ],
+      "note": "We get the integer value from an enum."
+    },
+    {
+      "warning_type": "SQL Injection",
+      "warning_code": 0,
+      "fingerprint": "ca96bae02a143ef9b3689f36d8bd22ddf354f510e6b73e7975f29c831ba259d5",
+      "check_name": "SQL",
+      "message": "Possible SQL injection",
+      "file": "app/models/concerns/contributes_to_patient_teams.rb",
+      "line": 166,
+      "link": "https://brakemanscanner.org/docs/warning_types/sql_injection/",
+      "code": "connection.execute(\"          INSERT INTO patient_teams (patient_id, team_id, sources)\\n            SELECT post_changed.patient_id, post_changed.team_id, ARRAY[#{PatientTeam.sources.fetch(key)}]\\n          FROM (#{subquery[:contribution_scope].select(\"#{connection.quote_string(subquery[:patient_id_source])} as patient_id\", \"#{connection.quote_string(subquery[:team_id_source])} as team_id\").joins(\"INNER JOIN #{connection.quote_table_name(\"temp_table_#{key}\")} ON #{connection.quote_table_name(\"temp_table_#{key}\")}.id = #{table_name}.id\").reorder(\"patient_id\").distinct.to_sql}) as post_changed\\n            ON CONFLICT (team_id, patient_id) DO UPDATE\\n            SET sources = array_append(array_remove(patient_teams.sources,#{PatientTeam.sources.fetch(key)}),#{PatientTeam.sources.fetch(key)})\\n\")",
+      "render_path": null,
+      "location": {
+        "type": "method",
+        "class": "ContributesToPatientTeams::Relation",
         "method": "update_all_and_sync_patient_teams"
       },
       "user_input": "PatientTeam.sources.fetch(key)",

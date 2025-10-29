@@ -28,7 +28,7 @@ class PatientLocation < ApplicationRecord
   include ContributesToPatientTeams
 
   class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
+    include ContributesToPatientTeams::Relation
   end
 
   audited associated_with: :patient

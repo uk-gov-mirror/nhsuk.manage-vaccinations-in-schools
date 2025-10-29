@@ -18,7 +18,7 @@ class Organisation < ApplicationRecord
   include ODSCodeConcern
 
   class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
+    include ContributesToPatientTeams::Relation
   end
 
   audited
