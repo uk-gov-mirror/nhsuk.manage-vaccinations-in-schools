@@ -4,16 +4,16 @@ module ContributesToPatientTeams
   extend ActiveSupport::Concern
 
   included do
-    after_create :after_create_synced_to_patient_teams
-    around_update :update_synced_to_patient_teams
-    before_destroy :before_delete_synced_to_patient_teams
+    after_create :after_create_add_source_to_patient_teams
+    around_update :after_update_sync_source_of_patient_teams
+    before_destroy :before_destroy_remove_source_from_patient_teams
   end
 
   private
 
-  def after_create_synced_to_patient_teams
-    get_patient_team_pairs.each do |source, pairs|
-      pairs.each do |patient_id, team_id|
+  def after_create_add_source_to_patient_teams
+    fetch_source_and_patient_team_ids.each do |source, patient_team_ids|
+      patient_team_ids.each do |patient_id, team_id|
         PatientTeam.find_or_initialize_by(patient_id:, team_id:).add_source!(
           source
         )
@@ -21,37 +21,35 @@ module ContributesToPatientTeams
     end
   end
 
-  def update_synced_to_patient_teams
+  def after_update_sync_source_of_patient_teams
     subquery_identifiers = self.class.all.contributing_subqueries.keys
 
-    old_patient_team_pairs = get_patient_team_pairs
+    old_patient_team_ids = fetch_source_and_patient_team_ids
     yield
-    new_patient_team_pairs = get_patient_team_pairs
+    new_patient_team_ids = fetch_source_and_patient_team_ids
 
-    unmodified_pairs = {}
-    subquery_identifiers.each do |key|
-      unmodified_pairs.update(
-        { key => (old_patient_team_pairs[key] & new_patient_team_pairs[key]) }
-      )
-    end
+    unmodified_patient_team_ids =
+      subquery_identifiers.index_with do |key|
+        old_patient_team_ids[key] & new_patient_team_ids[key]
+      end
 
-    removed_pairs =
-      old_patient_team_pairs
-        .map { |key, value| [key, (value - unmodified_pairs[key])] }
+    removed_patient_team_ids =
+      old_patient_team_ids
+        .map { |key, value| [key, (value - unmodified_patient_team_ids[key])] }
         .to_h
-    inserted_pairs =
-      new_patient_team_pairs
-        .map { |key, value| [key, (value - unmodified_pairs[key])] }
+    inserted_patient_team_ids =
+      new_patient_team_ids
+        .map { |key, value| [key, (value - unmodified_patient_team_ids[key])] }
         .to_h
 
-    removed_pairs.each do |source, pairs|
-      pairs.each do |patient_id, team_id|
+    removed_patient_team_ids.each do |source, patient_team_ids|
+      patient_team_ids.each do |patient_id, team_id|
         PatientTeam.find_by(patient_id:, team_id:)&.remove_source!(source)
       end
     end
 
-    inserted_pairs.each do |source, pairs|
-      pairs.each do |patient_id, team_id|
+    inserted_patient_team_ids.each do |source, patient_team_ids|
+      patient_team_ids.each do |patient_id, team_id|
         PatientTeam.find_or_initialize_by(patient_id:, team_id:).add_source!(
           source
         )
@@ -59,16 +57,15 @@ module ContributesToPatientTeams
     end
   end
 
-  def before_delete_synced_to_patient_teams
-    get_patient_team_pairs.each do |source, pairs|
-      pairs.each do |patient_id, team_id|
+  def before_destroy_remove_source_from_patient_teams
+    fetch_source_and_patient_team_ids.each do |source, patient_team_ids|
+      patient_team_ids.each do |patient_id, team_id|
         PatientTeam.find_by(patient_id:, team_id:)&.remove_source!(source)
       end
     end
   end
 
-  def get_patient_team_pairs
-    id = attributes.fetch("id")
+  def fetch_source_and_patient_team_ids
     self
       .class
       .where(id:)
