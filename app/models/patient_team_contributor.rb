@@ -105,67 +105,69 @@ module PatientTeamContributor
   def update_all_with_patient_team_sync(updates)
     transaction do
       contributing_subqueries.each do |key, subquery|
-        old_values = connection.quote_table_name("temp_table_#{key}")
+        affected_row_ids = connection.quote_table_name("temp_table_#{key}")
         sterile_key = PatientTeam.sources.fetch(key)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
-        rows_to_update =
-          subquery[:contribution_scope]
-            .select(
-              "#{table_name}.id as old_id",
-              "#{patient_id_source} as old_patient_id",
-              "#{team_id_source} as old_team_id"
-            )
-            .reorder("old_id")
-            .to_sql
+
+        source_table_affected_rows = all.select("#{table_name}.id as id").to_sql
         connection.execute <<-SQL
-          CREATE TEMPORARY TABLE #{old_values} (
-            old_id bigint,
-            old_patient_id bigint,
-            old_team_id bigint
+          CREATE TEMPORARY TABLE #{affected_row_ids} (
+            id bigint
           ) ON COMMIT DROP;
-          INSERT INTO #{old_values} (old_id, old_patient_id, old_team_id)
-          #{rows_to_update};
+          INSERT INTO #{affected_row_ids} (id) #{source_table_affected_rows};
         SQL
 
-        connection.execute <<-SQL
-        UPDATE patient_teams pt
-        SET sources = array_remove(sources, #{sterile_key})
-        FROM #{old_values} as pre_changed
-        WHERE pt.patient_id = pre_changed.old_patient_id AND pt.team_id = pre_changed.old_team_id;
-        SQL
-      end
-
-      update_all(updates)
-      klass.all.contributing_subqueries.each do |key, subquery|
-        old_values = connection.quote_table_name("temp_table_#{key}")
-        sterile_key = PatientTeam.sources.fetch(key)
-        patient_id_source =
-          connection.quote_string(subquery[:patient_id_source])
-        team_id_source = connection.quote_string(subquery[:team_id_source])
-
-        insert_from =
+        patient_team_relationships_to_remove =
           subquery[:contribution_scope]
             .select(
               "#{patient_id_source} as patient_id",
               "#{team_id_source} as team_id"
             )
-            .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
+            .reorder("patient_id")
+            .distinct
+            .to_sql
+        connection.execute <<-SQL
+          UPDATE patient_teams pt
+            SET sources = array_remove(sources, #{sterile_key})
+          FROM (#{patient_team_relationships_to_remove}) as pre_changed
+            WHERE pt.patient_id = pre_changed.patient_id AND pt.team_id = pre_changed.team_id;
+        SQL
+      end
+
+      update_all(updates)
+
+      klass.all.contributing_subqueries.each do |key, subquery|
+        modified_row_ids = connection.quote_table_name("temp_table_#{key}")
+        sterile_key = PatientTeam.sources.fetch(key)
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
+
+        patient_team_relationships_to_insert =
+          subquery[:contribution_scope]
+            .select(
+              "#{patient_id_source} as patient_id",
+              "#{team_id_source} as team_id"
+            )
+            .joins(
+              "INNER JOIN #{modified_row_ids} ON #{modified_row_ids}.id = #{table_name}.id"
+            )
             .reorder("patient_id")
             .distinct
             .to_sql
 
         connection.execute <<-SQL
-        INSERT INTO patient_teams (patient_id, team_id, sources)
-        SELECT post_changed.patient_id, post_changed.team_id, ARRAY[#{sterile_key}]
-        FROM (#{insert_from}) as post_changed
-        ON CONFLICT (team_id, patient_id) DO UPDATE
-        SET sources = array_append(array_remove(patient_teams.sources,#{sterile_key}),#{sterile_key})
+          INSERT INTO patient_teams (patient_id, team_id, sources)
+            SELECT post_changed.patient_id, post_changed.team_id, ARRAY[#{sterile_key}]
+          FROM (#{patient_team_relationships_to_insert}) as post_changed
+            ON CONFLICT (team_id, patient_id) DO UPDATE
+            SET sources = array_append(array_remove(patient_teams.sources,#{sterile_key}),#{sterile_key})
         SQL
 
         connection.execute <<-SQL
-          DROP TABLE IF EXISTS #{old_values};
+          DROP TABLE IF EXISTS #{modified_row_ids};
         SQL
 
         connection.execute <<-SQL
