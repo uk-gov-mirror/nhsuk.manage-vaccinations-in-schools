@@ -102,7 +102,7 @@ module PatientTeamContributor
     end
   end
 
-  def update_all_with_patient_team_sync(updates)
+  def update_all_and_sync_patient_teams(updates)
     transaction do
       contributing_subqueries.each do |key, subquery|
         affected_row_ids = connection.quote_table_name("temp_table_#{key}")
@@ -177,7 +177,7 @@ module PatientTeamContributor
     end
   end
 
-  def delete_all_with_patient_team_sync
+  def delete_all_and_sync_patient_teams
     transaction do
       contributing_subqueries.each do |key, subquery|
         patient_id_source =

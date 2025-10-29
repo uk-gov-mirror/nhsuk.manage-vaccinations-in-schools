@@ -61,7 +61,7 @@ describe PatientLocation do
       expect {
         described_class.where(
           id: patient_location.id
-        ).update_all_with_patient_team_sync(
+        ).update_all_and_sync_patient_teams(
           academic_year: session.academic_year
         )
       }.to change(PatientTeam, :count).by(1)
@@ -78,7 +78,7 @@ describe PatientLocation do
       expect {
         described_class.where(
           id: patient_location.id
-        ).delete_all_with_patient_team_sync
+        ).delete_all_and_sync_patient_teams
       }.to change(PatientTeam, :count).by(-1)
     end
   end

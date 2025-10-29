@@ -66,11 +66,11 @@ def attach_sample_of_schools_to(team)
     .where(subteam_id: nil)
     .order("RANDOM()")
     .limit(50)
-    .update_all_with_patient_team_sync(subteam_id: team.subteams.first.id)
+    .update_all_and_sync_patient_teams(subteam_id: team.subteams.first.id)
 end
 
 def attach_specific_school_to_team_if_present(team:, urn:)
-  Location.where(urn:).update_all_with_patient_team_sync(
+  Location.where(urn:).update_all_and_sync_patient_teams(
     subteam_id: team.subteams.first.id
   )
 end

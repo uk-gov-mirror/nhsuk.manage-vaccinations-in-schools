@@ -17,9 +17,9 @@ class API::Testing::TeamsController < API::Testing::BaseController
     log_destroy(ImmunisationImport.where(team:))
     log_destroy(ClassImport.where(team:))
 
-    log_destroy(SchoolMove.where(team:), patient_team_sync: true)
+    log_destroy(SchoolMove.where(team:), sync_patient_teams: true)
     log_destroy(Consent.where(team:))
-    log_destroy(ArchiveReason.where(team:), patient_team_sync: true)
+    log_destroy(ArchiveReason.where(team:), sync_patient_teams: true)
     log_destroy(Triage.where(team:))
 
     log_destroy(
@@ -31,20 +31,20 @@ class API::Testing::TeamsController < API::Testing::BaseController
     log_destroy(SessionNotification.joins(:session).where(session: { team: }))
     log_destroy(
       VaccinationRecord.joins(:session).where(sessions: { team: }),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
 
     patient_ids = team.patients.pluck(:id)
 
     log_destroy(
       PatientLocation.joins(location: :subteam).where(subteams: { team: }),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
 
     log_destroy(AccessLogEntry.where(patient_id: patient_ids))
     log_destroy(
       ArchiveReason.where(patient_id: patient_ids),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
     log_destroy(AttendanceRecord.where(patient_id: patient_ids))
     log_destroy(ConsentNotification.where(patient_id: patient_ids))
@@ -56,19 +56,19 @@ class API::Testing::TeamsController < API::Testing::BaseController
     log_destroy(PatientChangeset.where(patient_id: patient_ids))
     log_destroy(
       PatientLocation.where(patient_id: patient_ids),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
     log_destroy(PatientSpecificDirection.where(patient_id: patient_ids))
     log_destroy(PDSSearchResult.where(patient_id: patient_ids))
     log_destroy(PreScreening.where(patient_id: patient_ids))
     log_destroy(
       SchoolMove.where(patient_id: patient_ids),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
     log_destroy(SchoolMoveLogEntry.where(patient_id: patient_ids))
     log_destroy(
       VaccinationRecord.where(patient_id: patient_ids),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
 
     log_destroy(SessionDate.joins(:session).where(session: { team: }))
@@ -79,30 +79,30 @@ class API::Testing::TeamsController < API::Testing::BaseController
 
     log_destroy(
       VaccinationRecord.joins(:batch).where(batch: { team: }),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
     log_destroy(Batch.where(team:))
 
     log_destroy(
       VaccinationRecord.where(performed_ods_code: team.organisation.ods_code),
-      patient_team_sync: true
+      sync_patient_teams: true
     )
 
     unless keep_itself
-      log_destroy(Session.where(team:), patient_team_sync: true)
+      log_destroy(Session.where(team:))
 
       log_destroy(
-        Location.generic_clinic.joins(:subteam).where(subteams: { team: }),
-        patient_team_sync: true
+        Location.generic_clinic.joins(:subteam).where(subteams: { team: })
       )
+
       Location
         .joins(:subteam)
         .where(subteams: { team: })
-        .update_all_with_patient_team_sync(subteam_id: nil)
+        .update_all(subteam_id: nil)
 
-      log_destroy(Subteam.where(team:), patient_team_sync: true)
+      log_destroy(Subteam.where(team:))
 
-      log_destroy(Team.where(id: team.id), patient_team_sync: true)
+      log_destroy(Team.where(id: team.id))
     end
 
     response.stream.write "Done"
@@ -114,11 +114,11 @@ class API::Testing::TeamsController < API::Testing::BaseController
 
   private
 
-  def log_destroy(query, patient_team_sync: false)
+  def log_destroy(query, sync_patient_teams: false)
     where_clause = query.where_clause
     @log_time ||= Time.zone.now
-    if patient_team_sync
-      query.delete_all_with_patient_team_sync
+    if sync_patient_teams
+      query.delete_all_and_sync_patient_teams
     else
       query.delete_all
     end

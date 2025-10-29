@@ -16,7 +16,7 @@ session.patients.count # get the number of patients
 session.patient_locations.all?(&:safe_to_destroy?)
 
 # update all the patients to unknown school
-session.patients.update_all_with_patient_team_sync(
+session.patients.update_all_and_sync_patient_teams(
   cohort_id: nil,
   home_educated: false,
   school_id: nil
