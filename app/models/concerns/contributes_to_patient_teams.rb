@@ -175,13 +175,9 @@ module ContributesToPatientTeams
             SET sources = array_append(array_remove(patient_teams.sources,#{sterile_key}),#{sterile_key})
         SQL
 
-          connection.execute <<-SQL
-          DROP TABLE IF EXISTS #{modified_row_ids};
-        SQL
+          connection.execute("DROP TABLE IF EXISTS #{modified_row_ids}")
 
-          connection.execute <<-SQL
-          DELETE FROM patient_teams WHERE sources = ARRAY[]::integer[];
-        SQL
+          PatientTeam.missing_sources.delete_all
         end
       end
     end
@@ -210,9 +206,7 @@ module ContributesToPatientTeams
         WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
         SQL
 
-          connection.execute <<-SQL
-          DELETE FROM patient_teams WHERE sources = ARRAY[]::integer[];
-        SQL
+          PatientTeam.missing_sources.delete_all
         end
 
         delete_all

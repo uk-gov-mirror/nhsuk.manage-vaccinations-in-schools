@@ -28,6 +28,8 @@ class PatientTeam < ApplicationRecord
   belongs_to :patient
   belongs_to :team
 
+  scope :missing_sources, -> { where(sources: []) }
+
   array_enum sources: {
                patient_location: 0,
                archive_reason: 1,
