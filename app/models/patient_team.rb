@@ -37,17 +37,12 @@ class PatientTeam < ApplicationRecord
                school_move_school: 5
              }
 
-  def self.sync_record(source, patient_id, team_id)
-    pt = find_or_initialize_by(patient_id: patient_id, team_id: team_id)
-    pt.sources = Array(pt.sources) | [source.to_s]
-    pt.save!
+  def add_source!(source)
+    update!(sources: Array(sources) | [source.to_s])
   end
 
-  def self.remove_identifier(source, patient_id, team_id)
-    pt = find_by(patient_id:, team_id:)
-    return unless pt
-
-    pt.sources = pt.sources.reject { it == source.to_s }
-    pt.sources.empty? ? pt.delete : pt.save!
+  def remove_source!(source)
+    self.sources = sources.reject { it == source.to_s }
+    sources.empty? ? delete : save!
   end
 end

@@ -15,7 +15,11 @@ class PatientTeamContributingRecord < ApplicationRecord
 
   def after_create_synced_to_patient_teams
     get_patient_team_pairs.each do |source, pairs|
-      pairs.each { |pair| PatientTeam.sync_record(source, pair[0], pair[1]) }
+      pairs.each do |patient_id, team_id|
+        PatientTeam.find_or_initialize_by(patient_id:, team_id:).add_source!(
+          source
+        )
+      end
     end
   end
 
@@ -43,19 +47,24 @@ class PatientTeamContributingRecord < ApplicationRecord
         .to_h
 
     removed_pairs.each do |source, pairs|
-      pairs.each do |pair|
-        PatientTeam.remove_identifier(source, pair[0], pair[1])
+      pairs.each do |patient_id, team_id|
+        PatientTeam.find_by(patient_id:, team_id:)&.remove_source!(source)
       end
     end
+
     inserted_pairs.each do |source, pairs|
-      pairs.each { |pair| PatientTeam.sync_record(source, pair[0], pair[1]) }
+      pairs.each do |patient_id, team_id|
+        PatientTeam.find_or_initialize_by(patient_id:, team_id:).add_source!(
+          source
+        )
+      end
     end
   end
 
   def before_delete_synced_to_patient_teams
     get_patient_team_pairs.each do |source, pairs|
-      pairs.each do |pair|
-        PatientTeam.remove_identifier(source, pair[0], pair[1])
+      pairs.each do |patient_id, team_id|
+        PatientTeam.find_by(patient_id:, team_id:)&.remove_source!(source)
       end
     end
   end
@@ -74,7 +83,7 @@ class PatientTeamContributingRecord < ApplicationRecord
             "#{subquery.fetch(:team_id_source)} as team_id"
           )
           .distinct
-          .map { |rec| [rec.patient_id, rec.team_id] }
+          .map { [it.patient_id, it.team_id] }
       end
   end
 end
