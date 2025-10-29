@@ -30,15 +30,17 @@
 #
 #  fk_rails_...  (team_id => teams.id)
 #
-class Session < PatientTeamContributingRecord
-  class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
-  end
+class Session < ApplicationRecord
   include Consentable
+  include ContributesToPatientTeams
   include DaysBeforeToWeeksBefore
   include Delegatable
   include GelatineVaccinesConcern
   include HasLocationProgrammeYearGroups
+
+  class ActiveRecord_Relation < ActiveRecord::Relation
+    include PatientTeamContributor
+  end
 
   audited associated_with: :location
   has_associated_audits

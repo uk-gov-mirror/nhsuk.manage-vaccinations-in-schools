@@ -1,15 +1,13 @@
 # frozen_string_literal: true
 
-class PatientTeamContributingRecord < ApplicationRecord
-  self.abstract_class = true
+module ContributesToPatientTeams
+  extend ActiveSupport::Concern
 
-  class ActiveRecord_Relation < ActiveRecord::Relation
-    include PatientTeamContributor
+  included do
+    after_create :after_create_synced_to_patient_teams
+    around_update :update_synced_to_patient_teams
+    before_destroy :before_delete_synced_to_patient_teams
   end
-
-  after_create :after_create_synced_to_patient_teams
-  around_update :update_synced_to_patient_teams
-  before_destroy :before_delete_synced_to_patient_teams
 
   private
 

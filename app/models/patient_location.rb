@@ -24,7 +24,9 @@
 #  fk_rails_...  (patient_id => patients.id)
 #
 
-class PatientLocation < PatientTeamContributingRecord
+class PatientLocation < ApplicationRecord
+  include ContributesToPatientTeams
+
   class ActiveRecord_Relation < ActiveRecord::Relation
     include PatientTeamContributor
   end

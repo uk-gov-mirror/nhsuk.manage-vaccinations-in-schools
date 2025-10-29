@@ -31,12 +31,14 @@
 #
 #  fk_rails_...  (organisation_id => organisations.id)
 #
-class Team < PatientTeamContributingRecord
+class Team < ApplicationRecord
+  include ContributesToPatientTeams
+  include DaysBeforeToWeeksBefore
+  include HasLocationProgrammeYearGroups
+
   class ActiveRecord_Relation < ActiveRecord::Relation
     include PatientTeamContributor
   end
-  include DaysBeforeToWeeksBefore
-  include HasLocationProgrammeYearGroups
 
   audited associated_with: :organisation
   has_associated_audits

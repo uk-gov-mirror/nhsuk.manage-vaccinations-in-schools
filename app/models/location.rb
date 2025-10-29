@@ -36,13 +36,15 @@
 #
 #  fk_rails_...  (subteam_id => subteams.id)
 #
-class Location < PatientTeamContributingRecord
+class Location < ApplicationRecord
+  include AddressConcern
+  include ContributesToPatientTeams
+  include HasLocationProgrammeYearGroups
+  include ODSCodeConcern
+
   class ActiveRecord_Relation < ActiveRecord::Relation
     include PatientTeamContributor
   end
-  include AddressConcern
-  include HasLocationProgrammeYearGroups
-  include ODSCodeConcern
 
   self.inheritance_column = nil
 
