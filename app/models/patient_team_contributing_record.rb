@@ -44,7 +44,7 @@ class PatientTeamContributingRecord < ApplicationRecord
 
     removed_pairs.each do |source, pairs|
       pairs.each do |pair|
-        PatientTeam.remove_identifier(source, pair[0], pair[0])
+        PatientTeam.remove_identifier(source, pair[0], pair[1])
       end
     end
     inserted_pairs.each do |source, pairs|

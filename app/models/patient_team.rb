@@ -39,7 +39,7 @@ class PatientTeam < ApplicationRecord
 
   def self.sync_record(source, patient_id, team_id)
     pt = find_or_initialize_by(patient_id: patient_id, team_id: team_id)
-    pt.sources = Array(pt.sources) | [source]
+    pt.sources = Array(pt.sources) | [source.to_s]
     pt.save!
   end
 
@@ -47,8 +47,7 @@ class PatientTeam < ApplicationRecord
     pt = find_by(patient_id:, team_id:)
     return unless pt
 
-    pt.sources.delete(source)
-
-    pt.sources.empty? ? pt.destroy! : pt.save!
+    pt.sources = pt.sources.reject { it == source.to_s }
+    pt.sources.empty? ? pt.delete : pt.save!
   end
 end
