@@ -106,16 +106,19 @@ module PatientTeamContributor
     transaction do
       contributing_subqueries.each do |key, subquery|
         old_values = connection.quote_table_name("temp_table_#{key}")
+        sterile_key = PatientTeam.sources.fetch(key)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
-
         rows_to_update =
-          subquery[:contribution_scope].select(
-            "#{table_name}.id as old_id",
-            "#{patient_id_source} as old_patient_id",
-            "#{team_id_source} as old_team_id"
-          ).to_sql
+          subquery[:contribution_scope]
+            .select(
+              "#{table_name}.id as old_id",
+              "#{patient_id_source} as old_patient_id",
+              "#{team_id_source} as old_team_id"
+            )
+            .reorder("old_id")
+            .to_sql
         connection.execute <<-SQL
           CREATE TEMPORARY TABLE #{old_values} (
             old_id bigint,
@@ -125,33 +128,22 @@ module PatientTeamContributor
           INSERT INTO #{old_values} (old_id, old_patient_id, old_team_id)
           #{rows_to_update};
         SQL
-      end
-
-      update_all(updates)
-
-      contributing_subqueries.each do |key, subquery|
-        old_values = connection.quote_table_name("temp_table_#{key}")
-        sterile_key = PatientTeam.sources.fetch(key.to_s)
-        patient_id_source =
-          connection.quote_string(subquery[:patient_id_source])
-        team_id_source = connection.quote_string(subquery[:team_id_source])
-        update_from =
-          subquery[:contribution_scope]
-            .select("old_patient_id", "old_team_id")
-            .joins("INNER JOIN #{old_values} ON old_id = #{table_name}.id")
-            .where(
-              "old_patient_id != #{patient_id_source} OR old_team_id != #{team_id_source}"
-            )
-            .reorder("old_patient_id")
-            .distinct
-            .to_sql
 
         connection.execute <<-SQL
         UPDATE patient_teams pt
         SET sources = array_remove(sources, #{sterile_key})
-        FROM (#{update_from}) AS pre_changed
+        FROM #{old_values} as pre_changed
         WHERE pt.patient_id = pre_changed.old_patient_id AND pt.team_id = pre_changed.old_team_id;
         SQL
+      end
+
+      update_all(updates)
+      klass.all.contributing_subqueries.each do |key, subquery|
+        old_values = connection.quote_table_name("temp_table_#{key}")
+        sterile_key = PatientTeam.sources.fetch(key)
+        patient_id_source =
+          connection.quote_string(subquery[:patient_id_source])
+        team_id_source = connection.quote_string(subquery[:team_id_source])
 
         insert_from =
           subquery[:contribution_scope]
@@ -174,6 +166,10 @@ module PatientTeamContributor
 
         connection.execute <<-SQL
           DROP TABLE IF EXISTS #{old_values};
+        SQL
+
+        connection.execute <<-SQL
+          DELETE FROM patient_teams WHERE sources = ARRAY[]::integer[];
         SQL
       end
     end
@@ -202,6 +198,10 @@ module PatientTeamContributor
         FROM (#{delete_from}) AS del
         WHERE pt.patient_id = del.patient_id AND pt.team_id = del.team_id;
         SQL
+
+        connection.execute <<-SQL
+          DELETE FROM patient_teams WHERE sources = ARRAY[]::integer[];
+        SQL
       end
 
       delete_all
@@ -211,7 +211,7 @@ module PatientTeamContributor
   def sync_patient_teams
     transaction do
       contributing_subqueries.each do |key, subquery|
-        sterile_key = PatientTeam.sources.fetch(key.to_s)
+        sterile_key = PatientTeam.sources.fetch(key)
         patient_id_source =
           connection.quote_string(subquery[:patient_id_source])
         team_id_source = connection.quote_string(subquery[:team_id_source])
