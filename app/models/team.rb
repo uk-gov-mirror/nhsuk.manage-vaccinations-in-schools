@@ -15,6 +15,7 @@
 #  phone_instructions            :string
 #  privacy_notice_url            :string           not null
 #  privacy_policy_url            :string           not null
+#  type                          :integer          not null
 #  workgroup                     :string           not null
 #  created_at                    :datetime         not null
 #  updated_at                    :datetime         not null
@@ -42,6 +43,8 @@ class Team < ApplicationRecord
 
   audited associated_with: :organisation
   has_associated_audits
+
+  self.inheritance_column = nil
 
   belongs_to :organisation
 
@@ -74,6 +77,11 @@ class Team < ApplicationRecord
 
   normalizes :email, with: EmailAddressNormaliser.new
   normalizes :phone, with: PhoneNumberNormaliser.new
+
+  enum :type,
+       { poc_only: 0, upload_only: 1, poc_with_legacy_upload: 2 },
+       validate: true,
+       prefix: true
 
   validates :careplus_venue_code, presence: true
   validates :email, notify_safe_email: true
