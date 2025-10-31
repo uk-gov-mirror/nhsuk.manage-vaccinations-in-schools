@@ -44,29 +44,40 @@ FactoryBot.define do
       import { association(:cohort_import) }
     end
 
-    pending_changes do
+    data do
       {
-        child: {
-          "given_name" => "John",
-          "family_name" => "Dover",
-          "date_of_birth" => "2010-01-01",
-          "address_postcode" => "SW1A 1AA",
-          "nhs_number" => nil
+        "upload" => {
+          "child" => {
+            "given_name" => "John",
+            "family_name" => "Dover",
+            "date_of_birth" => "2010-01-01",
+            "address_postcode" => "SW1A 1AA",
+            "nhs_number" => nil
+          },
+          "parent_1" => {
+          },
+          "parent_2" => {
+          },
+          "pds" => {
+          },
+          "academic_year" => nil,
+          "home_educated" => nil,
+          "school_move_source" => nil
         },
-        parent_1: {
-        },
-        parent_2: {
-        },
-        pds: {
-        },
-        search_results: [
+        "search_results" => [
           {
-            step: :no_fuzzy_with_history,
-            result: :no_matches,
-            nhs_number: nil,
-            created_at: Time.current
+            "step" => :no_fuzzy_with_history,
+            "result" => :no_matches,
+            "nhs_number" => nil,
+            "created_at" => Time.current
           }
-        ]
+        ],
+        "review" => {
+          "patient" => {
+          },
+          "school_move" => {
+          }
+        }
       }
     end
 
@@ -76,13 +87,13 @@ FactoryBot.define do
 
     trait :with_nhs_number do
       after(:build) do |changeset|
-        changeset.pending_changes["child"]["nhs_number"] = "1234567890"
+        changeset.data["upload"]["child"]["nhs_number"] = "1234567890"
       end
     end
 
     trait :with_pds_match do
       after(:build) do |changeset|
-        changeset.pending_changes["search_results"] = [
+        changeset.data["search_results"] = [
           {
             step: :no_fuzzy_with_history,
             result: :one_match,
@@ -96,7 +107,7 @@ FactoryBot.define do
 
     trait :without_pds_search_attempted do
       after(:build) do |changeset|
-        changeset.pending_changes["search_results"] = [
+        changeset.data["search_results"] = [
           {
             step: :no_fuzzy_with_history,
             result: :no_postcode,
