@@ -9,9 +9,7 @@ module AppNavigationConcern
 
   def set_app_navigation
     # To handle the start and login pages
-    if current_team.blank?
-      return
-    end
+    return if current_team.blank?
 
     @app_navigation_items =
       (
@@ -53,14 +51,13 @@ module AppNavigationConcern
         end
       )
 
-    @app_navigation_items +=
-      [
-          {
-            title: t("imports.index.title_short"),
-            path: imports_path,
-            count: cached_counts.import_issues
-          },
-          { title: t("teams.show.title"), path: team_path, count: nil }
-        ]
+    @app_navigation_items += [
+      {
+        title: t("imports.index.title_short"),
+        path: imports_path,
+        count: cached_counts.import_issues
+      },
+      { title: t("teams.show.title"), path: team_path, count: nil }
+    ]
   end
 end
