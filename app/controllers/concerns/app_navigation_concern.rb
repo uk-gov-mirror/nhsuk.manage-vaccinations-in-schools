@@ -8,8 +8,11 @@ module AppNavigationConcern
   end
 
   def set_app_navigation
-    # To handle the start and login pages
-    return if current_team.blank?
+    # To handle the start, login and select team pages.
+    if current_team.blank?
+      @app_navigation_items = []
+      return
+    end
 
     @app_navigation_items =
       (
