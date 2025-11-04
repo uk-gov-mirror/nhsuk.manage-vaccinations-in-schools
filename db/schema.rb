@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_04_225328) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_04_225904) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -530,7 +530,6 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_04_225328) do
     t.boolean "matched_on_nhs_number"
     t.bigint "patient_id"
     t.string "pds_nhs_number"
-    t.jsonb "pending_changes", default: {}
     t.integer "record_type", default: 1, null: false
     t.integer "row_number"
     t.bigint "school_id"

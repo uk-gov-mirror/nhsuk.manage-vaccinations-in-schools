@@ -31,31 +31,6 @@
 #  fk_rails_...  (school_id => locations.id)
 #
 class PatientChangeset < ApplicationRecord
-  self.ignored_columns = %w[pending_changes]
-
-  attribute :pending_changes,
-            :jsonb,
-            default: {
-              upload: {
-                child: {
-                },
-                parent_1: {
-                },
-                parent_2: {
-                },
-                academic_year: nil,
-                home_educated: nil,
-                school_move_source: nil
-              },
-              search_results: [],
-              review: {
-                patient: {
-                },
-                school_move: {
-                }
-              }
-            }
-
   attribute :data,
             :jsonb,
             default: {
@@ -133,10 +108,6 @@ class PatientChangeset < ApplicationRecord
   end
 
   delegate :team, to: :import
-
-  def data
-    super || pending_changes
-  end
 
   def review_data = data["review"]
 
