@@ -114,6 +114,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
     t.bigint "location_id", null: false
     t.integer "new_record_count"
     t.datetime "processed_at"
+    t.datetime "reviewed_at", default: [], array: true
+    t.bigint "reviewed_by_user_ids", default: [], array: true
     t.integer "rows_count"
     t.jsonb "serialized_errors"
     t.integer "status", default: 0, null: false
@@ -154,6 +156,8 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
     t.integer "exact_duplicate_record_count"
     t.integer "new_record_count"
     t.datetime "processed_at"
+    t.datetime "reviewed_at", default: [], array: true
+    t.bigint "reviewed_by_user_ids", default: [], array: true
     t.integer "rows_count"
     t.jsonb "serialized_errors"
     t.integer "status", default: 0, null: false
