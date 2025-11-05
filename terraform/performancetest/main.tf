@@ -20,37 +20,33 @@ provider "aws" {
   region = "eu-west-2"
 }
 
-resource "aws_ecr_repository" "performancetest" {
-  name                 = "performancetest"
-  image_tag_mutability = "MUTABLE"
+resource "aws_ecr_repository" "this" {
+  name                 = var.identifier
+  image_tag_mutability = "IMMUTABLE"
 }
 
-resource "aws_ecs_cluster" "performancetest" {
-  name = "performancetest"
-
-  setting {
-    name  = "containerInsights"
-    value = "enabled"
-  }
+resource "aws_ecr_lifecycle_policy" "this" {
+  repository = aws_ecr_repository.this.name
+  policy = jsonencode({
+    rules = [
+      {
+        rulePriority = 1,
+        description  = "Expire images older than 1 month",
+        selection = {
+          tagStatus   = "any",
+          countType   = "sinceImagePushed",
+          countUnit   = "days",
+          countNumber = 30
+        },
+        action = {
+          type = "expire"
+        }
+      }
+    ]
+  })
 }
 
-data "aws_iam_role" "ecs_task_role" {
-  name = "EcsTaskRole"
-}
-
-resource "aws_ecs_task_definition" "performancetest" {
-  family                   = "performancetest-task-definition"
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = 1024
-  memory                   = 2048
-  # execution_role_arn       = var.task_config.execution_role_arn
-  task_role_arn = data.aws_iam_role.ecs_task_role.arn
-  container_definitions = jsonencode([
-    {
-      name      = "performancetest-container"
-      image     = "alpine"
-      essential = true
-    }
-  ])
+resource "aws_s3_bucket" "this" {
+  bucket_prefix = var.identifier
+  force_destroy = true
 }

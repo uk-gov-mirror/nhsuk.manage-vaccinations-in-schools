@@ -1,0 +1,45 @@
+resource "aws_ecs_cluster" "this" {
+  name = var.identifier
+  setting {
+    name  = "containerInsights"
+    value = "enabled"
+  }
+}
+
+data "aws_iam_role" "ecs_task_role" {
+  name = "EcsTaskRole"
+}
+
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "${var.identifier}-ecs"
+  retention_in_days = 7
+  skip_destroy      = false
+}
+
+resource "aws_ecs_task_definition" "this" {
+  family                   = "${var.identifier}-task-definition-template"
+  requires_compatibilities = ["FARGATE"]
+  network_mode             = "awsvpc"
+  cpu                      = 2048
+  memory                   = 4096
+  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  task_role_arn            = data.aws_iam_role.ecs_task_role.arn
+  container_definitions = jsonencode([
+    {
+      name                   = "${var.identifier}-container"
+      image                  = "CHANGE_ME"
+      essential              = true
+      readonlyRootFileSystem = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.this.name
+          awslogs-region        = "eu-west-2"
+          awslogs-stream-prefix = "${var.identifier}-logs"
+        }
+      }
+    }
+  ])
+}
+
+
