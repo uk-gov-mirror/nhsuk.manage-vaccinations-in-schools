@@ -42,4 +42,24 @@ resource "aws_ecs_task_definition" "this" {
   ])
 }
 
+resource "aws_security_group" "ecs_task_sg" {
+  name        = "${var.identifier}-sg"
+  description = "Security group for ${var.identifier} ecs task"
+  vpc_id      = aws_vpc.vpc.id
+  lifecycle {
+    ignore_changes = [description]
+  }
+}
 
+resource "aws_security_group_rule" "ecs_task_egress" {
+  type              = "egress"
+  description       = "Allow all egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = -1
+  cidr_blocks       = ["0.0.0.0/0"]
+  security_group_id = aws_security_group.ecs_task_sg.id
+  lifecycle {
+    create_before_destroy = true
+  }
+}

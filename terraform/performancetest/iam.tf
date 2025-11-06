@@ -1,6 +1,6 @@
 ################################# IAM Roles #################################
 resource "aws_iam_role" "ecs_task_execution_role" {
-  name = "ecsTaskExecutionRole"
+  name = "ecsTaskExecutionRole-${var.identifier}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -22,7 +22,7 @@ resource "aws_iam_role" "ecs_task_execution_role" {
 data "aws_iam_policy_document" "additional_task_execution_permissions" {
   statement {
     actions = [
-      "logs:CreateLogGroup",
+      "logs:CreateLogGroup"
     ]
     resources = ["*"]
     effect    = "Allow"
