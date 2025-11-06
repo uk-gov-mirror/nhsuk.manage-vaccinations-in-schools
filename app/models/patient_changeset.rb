@@ -11,7 +11,7 @@
 #  pds_nhs_number        :string
 #  pending_changes       :jsonb            not null
 #  processed_at          :datetime
-#  record_type           :integer          default(1), not null
+#  record_type           :integer          default("new_patient"), not null
 #  row_number            :integer
 #  status                :integer          default("pending"), not null
 #  uploaded_nhs_number   :string
