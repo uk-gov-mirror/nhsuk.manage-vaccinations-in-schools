@@ -33,6 +33,8 @@
 #  fk_rails_...  (school_id => locations.id)
 #
 class PatientChangeset < ApplicationRecord
+  include PatientImportConcern
+
   attribute :pending_changes,
             :jsonb,
             default: {
@@ -89,7 +91,10 @@ class PatientChangeset < ApplicationRecord
          processed: 1,
          import_invalid: 2,
          calculating_review: 3,
-         ready_for_review: 4
+         ready_for_review: 4,
+         committing: 5,
+         needs_re_review: 6,
+         cancelled: 7
        },
        validate: true
 
@@ -116,6 +121,8 @@ class PatientChangeset < ApplicationRecord
           )
         end
 
+  scope :from_file, -> { where.not(row_number: nil) }
+
   scope :with_postcode,
         -> do
           where("data -> 'upload' -> 'child' -> 'address_postcode' IS NOT NULL")
@@ -124,6 +131,13 @@ class PatientChangeset < ApplicationRecord
   scope :without_postcode,
         -> do
           where("data -> 'upload' -> 'child' -> 'address_postcode' IS NULL")
+        end
+
+  scope :with_school_moves,
+        -> do
+          where(
+            "data -> 'review' -> 'school_move' -> 'school_id' IS NOT NULL"
+          ).where.not(status: :processed)
         end
 
   def self.from_import_row(row:, import:, row_number:)
@@ -188,6 +202,10 @@ class PatientChangeset < ApplicationRecord
 
   def invalidate!
     data["upload"]["child"]["invalidated_at"] = Time.current
+  end
+
+  def processed!
+    update!(status: :processed, processed_at: Time.zone.now)
   end
 
   def patient
@@ -439,14 +457,6 @@ class PatientChangeset < ApplicationRecord
     end
   end
 
-  def auto_confirmable_school_move?
-    (school_move.patient.school.nil? && !school_move.patient.home_educated) ||
-      school_move.patient.not_in_team?(
-        team: import.team,
-        academic_year: import.academic_year
-      ) || school_move.patient.archived?(team: import.team)
-  end
-
   def calculate_review_data!
     clear_review_data!
 
@@ -459,7 +469,8 @@ class PatientChangeset < ApplicationRecord
       data["review"]["patient"]["pending_changes"] = patient.pending_changes
     end
 
-    if school_move.present? && !auto_confirmable_school_move?
+    if school_move.present? &&
+         !has_auto_confirmable_school_move?(school_move, import)
       data["review"]["school_move"]["school_id"] = school_move.school_id
       data["review"]["school_move"]["home_educated"] = school_move.home_educated
     end
