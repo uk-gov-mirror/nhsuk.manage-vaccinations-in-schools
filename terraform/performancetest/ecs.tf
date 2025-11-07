@@ -40,6 +40,10 @@ resource "aws_ecs_task_definition" "this" {
       }
     }
   ])
+
+  tags = {
+    Name = var.identifier
+  }
 }
 
 resource "aws_security_group" "ecs_task_sg" {
