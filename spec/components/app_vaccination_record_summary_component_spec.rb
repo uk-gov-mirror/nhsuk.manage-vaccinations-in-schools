@@ -163,7 +163,7 @@ describe AppVaccinationRecordSummaryComponent do
     end
 
     context "for an MMR programme" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
 
       context "and a unknown dose sequence" do
         before { vaccination_record.dose_sequence = nil }

@@ -61,7 +61,7 @@ class TriageForm
   end
 
   def delayed_mmr_dose?
-    programme.mmr? && delay_vaccination_until.present?
+    programme.mmrv? && delay_vaccination_until.present?
   end
 
   def safe_to_vaccinate_options
@@ -245,7 +245,7 @@ class TriageForm
       )
     end
 
-    if programme.mmr? && patient_eligible_for_additional_dose? &&
+    if programme.mmrv? && patient_eligible_for_additional_dose? &&
          delay_vaccination_until < next_mmr_dose_date
       errors.add(
         :delay_vaccination_until,

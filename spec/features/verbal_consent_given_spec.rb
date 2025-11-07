@@ -103,7 +103,7 @@ describe "Verbal consent" do
   end
 
   def given_an_mmr_programme_is_underway
-    create_programme(:mmr)
+    create_programme(:mmrv)
   end
 
   def create_programme(programme_type)

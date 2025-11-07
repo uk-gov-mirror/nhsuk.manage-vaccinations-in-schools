@@ -1127,7 +1127,7 @@ describe Reports::OfflineSessionExporter do
   end
 
   context "MMR programme" do
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
     let(:expected_programme) { "MMR" }
     let(:expected_dose_sequence) { nil }
     let(:expected_consent_status) { "Consent given" }

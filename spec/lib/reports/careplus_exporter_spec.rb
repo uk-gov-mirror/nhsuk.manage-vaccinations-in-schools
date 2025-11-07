@@ -348,7 +348,7 @@ describe Reports::CareplusExporter do
   end
 
   context "MMR programme" do
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
     let(:delivery_method) { :intramuscular }
     let(:expected_vaccine_code) { "MMR" }
 

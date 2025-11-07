@@ -121,7 +121,7 @@ describe AppTriageFormComponent do
 
   context "hint text for delayed triage when programme is MMR" do
     context "when the patient has not received any dose" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
 
       it "doesn't show the specific hint text about the 2nd dose" do
         expect(rendered).not_to have_text("2nd dose is not due until")
@@ -129,7 +129,7 @@ describe AppTriageFormComponent do
     end
 
     context "when the patient has received the 1st dose" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
 
       before do
         create(:vaccination_record, patient:, programme:, session:)

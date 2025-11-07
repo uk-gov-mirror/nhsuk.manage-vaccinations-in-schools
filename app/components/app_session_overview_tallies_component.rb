@@ -56,7 +56,7 @@ class AppSessionOverviewTalliesComponent < ViewComponent::Base
     if key.starts_with?("consent_")
       I18n.t(key[8..], scope: %i[status consent label])
     elsif key == "vaccinated"
-      if programme.mmr?
+      if programme.mmrv?
         # TODO: Apply this to all multi-dose programmes (Td/IPV) once we
         #  have confidence in the change.
         "Fully vaccinated"

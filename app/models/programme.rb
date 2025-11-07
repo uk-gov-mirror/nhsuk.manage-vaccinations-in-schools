@@ -44,8 +44,8 @@ class Programme < ApplicationRecord
          flu: "flu",
          hpv: "hpv",
          menacwy: "menacwy",
-         td_ipv: "td_ipv",
-         mmr: "mmr"
+         mmrv: "mmrv",
+         td_ipv: "td_ipv"
        },
        validate: true
 
@@ -64,8 +64,8 @@ class Programme < ApplicationRecord
       :hpv
     elsif doubles?
       :doubles
-    elsif mmr?
-      :mmr
+    elsif mmrv?
+      :mmrv
     else
       raise UnsupportedProgramme, self
     end
@@ -75,17 +75,17 @@ class Programme < ApplicationRecord
 
   def seasonal? = flu?
 
-  def catch_up_only? = mmr?
+  def catch_up_only? = mmrv?
 
   def supports_delegation? = flu?
 
-  def can_save_to_todays_batch? = !mmr?
+  def can_save_to_todays_batch? = !mmrv?
 
   DEFAULT_YEAR_GROUPS_BY_TYPE = {
     "flu" => (0..11).to_a,
     "hpv" => (8..11).to_a,
     "menacwy" => (9..11).to_a,
-    "mmr" => (0..11).to_a,
+    "mmrv" => (0..11).to_a,
     "td_ipv" => (9..11).to_a
   }.freeze
 
@@ -119,7 +119,7 @@ class Programme < ApplicationRecord
     "flu" => 2,
     "hpv" => 3,
     "menacwy" => 3,
-    "mmr" => 2,
+    "mmrv" => 2,
     "td_ipv" => 5
   }.freeze
 
@@ -131,7 +131,7 @@ class Programme < ApplicationRecord
     "flu" => %w[Flu],
     "hpv" => %w[HPV],
     "menacwy" => %w[ACWYX4 MenACWY],
-    "mmr" => %w[MMR],
+    "mmrv" => %w[MMR],
     "td_ipv" => %w[3-in-1 Td/IPV]
   }.freeze
 

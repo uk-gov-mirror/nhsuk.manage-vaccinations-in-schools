@@ -80,7 +80,7 @@ describe TriageForm do
       )
     end
 
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
     let(:patient) { create(:patient, :consent_given_triage_needed, session:) }
     let(:vaccination_record) do
       create(:vaccination_record, patient:, programme:)
@@ -96,7 +96,7 @@ describe TriageForm do
   end
 
   context "programme is MMR" do
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
 
     describe "validation for delay_vaccination_until" do
       subject(:validation_errors) do

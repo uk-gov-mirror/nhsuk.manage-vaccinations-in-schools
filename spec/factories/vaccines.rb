@@ -133,8 +133,8 @@ FactoryBot.define do
       end
     end
 
-    trait :mmr do
-      type { "mmr" }
+    trait :mmrv do
+      type { "mmrv" }
       injection
 
       after(:create) do |vaccine|

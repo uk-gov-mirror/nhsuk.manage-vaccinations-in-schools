@@ -317,7 +317,7 @@ describe GovukNotifyPersonalisation do
     end
 
     context "for the MMR programme" do
-      let(:programmes) { [create(:programme, :mmr)] }
+      let(:programmes) { [create(:programme, :mmrv)] }
 
       it { expect(to_h).to include(consented_vaccine_methods_message: "") }
 
@@ -417,7 +417,7 @@ describe GovukNotifyPersonalisation do
     end
 
     context "for the MMR programme" do
-      let(:programmes) { [create(:programme, :mmr)] }
+      let(:programmes) { [create(:programme, :mmrv)] }
 
       it { expect(to_h).to include(consented_vaccine_methods_message: "") }
 
@@ -467,7 +467,7 @@ describe GovukNotifyPersonalisation do
     end
 
     context "for the MMR programme" do
-      let(:programmes) { [create(:programme, :mmr)] }
+      let(:programmes) { [create(:programme, :mmrv)] }
 
       let(:patient) do
         create(:patient, date_of_birth: Date.new(2018, 2, 1), session:)

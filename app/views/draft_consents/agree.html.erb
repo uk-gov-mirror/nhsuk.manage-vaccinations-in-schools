@@ -25,7 +25,7 @@
       <% end %>
       <%= f.govuk_radio_button :response, "given_injection",
                                label: { text: "Yes, for the injected vaccine only" } %>
-    <% elsif @draft_consent.programme.mmr? %>
+    <% elsif @draft_consent.programme.mmrv? %>
       <%= f.govuk_radio_button :response, "given", label: { text: "Yes, they agree" }, link_errors: true do %>
         <%= f.govuk_radio_buttons_fieldset :without_gelatine,
                                            legend: { text: "Do they want their child to have a vaccine without gelatine?", size: "s" },

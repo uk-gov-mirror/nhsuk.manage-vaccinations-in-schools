@@ -99,7 +99,7 @@ describe PatientStatusResolver do
     end
 
     context "for MMR programme" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
 
       context "and eligible for 1st dose" do
         let(:patient) { create(:patient, session:) }

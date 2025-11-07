@@ -21,7 +21,7 @@ describe LocationSessionsFactory do
       end
 
       context "with MMR" do
-        let(:programmes) { [create(:programme, :mmr)] }
+        let(:programmes) { [create(:programme, :mmrv)] }
 
         it "doesn't create a session on its own" do
           expect { call }.not_to change(team.sessions, :count)

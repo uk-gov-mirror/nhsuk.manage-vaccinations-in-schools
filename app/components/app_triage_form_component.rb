@@ -19,7 +19,7 @@ class AppTriageFormComponent < ViewComponent::Base
   def builder = GOVUKDesignSystemFormBuilder::FormBuilder
 
   def hint_text
-    if programme.mmr? && patient_eligible_for_additional_dose?
+    if programme.mmrv? && patient_eligible_for_additional_dose?
       "2nd dose is not due until #{form.next_mmr_dose_date.to_fs(:long)}"
     else
       "For example, #{hint_date.to_fs(:long)} "

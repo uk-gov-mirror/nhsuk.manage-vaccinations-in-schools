@@ -91,7 +91,7 @@ describe Vaccine do
     end
 
     context "with an MMR vaccine" do
-      let(:vaccine) { build(:vaccine, :mmr) }
+      let(:vaccine) { build(:vaccine, :mmrv) }
 
       it { should eq("38598009") }
     end

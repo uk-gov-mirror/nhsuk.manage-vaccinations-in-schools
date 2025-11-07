@@ -129,7 +129,7 @@ class DraftConsent
               inclusion: {
                 in: [true, false]
               },
-              if: -> { programme.mmr? && response == "given" }
+              if: -> { programme.mmrv? && response == "given" }
   end
 
   on_wizard_step :notify_parents_on_vaccination, exact: true do

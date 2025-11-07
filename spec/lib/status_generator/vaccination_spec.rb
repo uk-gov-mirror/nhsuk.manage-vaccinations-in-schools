@@ -272,7 +272,7 @@ describe StatusGenerator::Vaccination do
     end
 
     context "with an MMR programme" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
 
       context "when eligible" do
         let(:session) { create(:session, programmes: [programme]) }
@@ -493,7 +493,7 @@ describe StatusGenerator::Vaccination do
     it { should be_nil }
 
     context "for MMR programme" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
       let(:session) { create(:session, programmes: [programme]) }
       let(:patient) do
         create(:patient, :consent_given_triage_not_needed, session:)

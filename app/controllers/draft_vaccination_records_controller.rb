@@ -129,7 +129,7 @@ class DraftVaccinationRecordsController < ApplicationController
 
     @vaccination_record.save!
 
-    if @vaccination_record.administered? && @programme.mmr?
+    if @vaccination_record.administered? && @programme.mmrv?
       create_triage_record_for_next_mmr_vaccination
     end
 

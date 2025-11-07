@@ -265,7 +265,7 @@ en:
           flu: Flu
           hpv: HPV
           menacwy: MenACWY
-          mmr: MMR
+          mmrv: MMR
           td_ipv: Td/IPV
       school_move:
         sources:
@@ -551,7 +551,7 @@ en:
         flu: Consent for the flu vaccination
         hpv: Consent for the HPV vaccination
         menacwy: Consent for the MenACWY vaccination
-        mmr: Consent for the MMR vaccination
+        mmrv: Consent for the MMR vaccination
         td_ipv: Consent for the Td/IPV vaccination
       i_agree: Consent given
     notes:
@@ -578,7 +578,7 @@ en:
         flu: Do they agree to them having the flu vaccination?
         hpv: Do they agree to them having the HPV vaccination?
         menacwy: Do they agree to them having the MenACWY vaccination?
-        mmr: Do they agree to them having the MMR vaccination?
+        mmrv: Do they agree to them having the MMR vaccination?
         td_ipv: Do they agree to them having the Td/IPV vaccination?
     notes:
       title:

@@ -109,7 +109,7 @@ class Sessions::RecordController < ApplicationController
       %w[injection injection_without_gelatine nasal]
     elsif programmes.any?(&:flu?)
       %w[injection_without_gelatine nasal]
-    elsif programmes.any?(&:mmr?)
+    elsif programmes.any?(&:mmrv?)
       %w[injection injection_without_gelatine]
     else
       []

@@ -101,7 +101,7 @@ describe ImmunisationImport do
     end
 
     context "with valid MMR rows" do
-      let(:programmes) { [create(:programme, :mmr)] }
+      let(:programmes) { [create(:programme, :mmrv)] }
       let(:file) { "valid_mmr.csv" }
 
       it "populates the rows" do
@@ -251,7 +251,7 @@ describe ImmunisationImport do
     end
 
     context "with valid MMR rows" do
-      let(:programmes) { [create(:programme, :mmr)] }
+      let(:programmes) { [create(:programme, :mmrv)] }
       let(:file) { "valid_mmr.csv" }
 
       it "creates locations, patients, and vaccination records" do

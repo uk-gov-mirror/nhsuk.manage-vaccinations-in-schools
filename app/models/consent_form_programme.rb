@@ -34,7 +34,7 @@ class ConsentFormProgramme < ApplicationRecord
 
   enum :response, { given: 0, refused: 1 }, prefix: true
 
-  delegate :flu?, :hpv?, :menacwy?, :mmr?, :td_ipv?, to: :programme
+  delegate :flu?, :hpv?, :menacwy?, :mmrv?, :td_ipv?, to: :programme
 
   def vaccines
     VaccineCriteria.from_consentable(self).apply(

@@ -279,7 +279,7 @@ describe Reports::SystmOneExporter do
     end
 
     context "MMR" do
-      let(:programme) { create(:programme, :mmr) }
+      let(:programme) { create(:programme, :mmrv) }
       let(:dose_sequence) { nil }
 
       context "Priorix" do

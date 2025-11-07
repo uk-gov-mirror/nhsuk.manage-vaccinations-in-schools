@@ -51,7 +51,7 @@ class StatusGenerator::Vaccination
 
   def dose_sequence
     # TODO: Implement this for multi-dose HPV and Td/IPV in a more generic way.
-    return unless programme.mmr?
+    return unless programme.mmrv?
 
     return unless status_should_be_due? || status_should_be_eligible?
 
@@ -158,7 +158,7 @@ class StatusGenerator::Vaccination
           filter_doubles_vaccination_records(administered_records)
         elsif programme.hpv?
           filter_hpv_vaccination_records(administered_records)
-        elsif programme.mmr?
+        elsif programme.mmrv?
           filter_mmr_vaccination_records(administered_records)
         else
           raise UnsupportedProgramme, programme
@@ -205,7 +205,7 @@ class StatusGenerator::Vaccination
           return already_had_record
         end
 
-        if programme.mmr?
+        if programme.mmrv?
           if valid_vaccination_records.count >= programme.maximum_dose_sequence
             valid_vaccination_records.first
           end

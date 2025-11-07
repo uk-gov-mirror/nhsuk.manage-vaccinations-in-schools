@@ -189,7 +189,7 @@ class GovukNotifyPersonalisation
   def mmr_second_dose_message
     return if patient.nil?
 
-    programme = programmes.find(&:mmr?)
+    programme = programmes.find(&:mmrv?)
     return if programme.nil?
 
     vaccination_status = patient.vaccination_status(programme:, academic_year:)

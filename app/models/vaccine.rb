@@ -108,7 +108,7 @@ class Vaccine < ApplicationRecord
     "menacwy" => {
       "injection" => "871874000"
     },
-    "mmr" => {
+    "mmrv" => {
       "injection" => "38598009"
     },
     "td_ipv" => {
@@ -129,7 +129,7 @@ class Vaccine < ApplicationRecord
     "menacwy" =>
       "Administration of vaccine product containing only Neisseria " \
         "meningitidis serogroup A, C, W135 and Y antigens (procedure)",
-    "mmr" =>
+    "mmrv" =>
       "Administration of vaccine product containing only Measles " \
         "morbillivirus and Mumps orthorubulavirus and Rubella virus " \
         "antigens (procedure)",

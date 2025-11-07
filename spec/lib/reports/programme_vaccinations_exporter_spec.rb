@@ -585,7 +585,7 @@ describe Reports::ProgrammeVaccinationsExporter do
   end
 
   context "MMR programme" do
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
     let(:expected_consent_status) { "Consent given" }
 
     include_examples "generates a report"

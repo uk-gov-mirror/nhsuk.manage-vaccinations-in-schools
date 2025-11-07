@@ -344,7 +344,7 @@ describe StatusGenerator::Triage do
   describe "#without_gelatine" do
     subject { generator.without_gelatine }
 
-    let(:programme) { create(:programme, :mmr) }
+    let(:programme) { create(:programme, :mmrv) }
 
     context "with no triage" do
       it { should be_nil }

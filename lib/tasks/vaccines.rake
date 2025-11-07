@@ -40,7 +40,7 @@ namespace :vaccines do
           create_hpv_health_questions(vaccine)
         elsif programme.menacwy?
           create_menacwy_health_questions(vaccine)
-        elsif programme.mmr?
+        elsif programme.mmrv?
           create_mmr_health_questions(vaccine)
         elsif programme.td_ipv?
           create_td_ipv_health_questions(vaccine)
@@ -91,7 +91,7 @@ def side_effects_for(programme, method)
       swelling
       unwell
     ]
-  elsif programme.mmr?
+  elsif programme.mmrv?
     %w[swollen_glands raised_blotchy_rash]
   elsif programme.td_ipv?
     %w[

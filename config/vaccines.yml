@@ -135,7 +135,7 @@ nimenrix:
 # MMR
 
 priorix:
-  type: mmr
+  type: mmrv
   brand: Priorix
   method: injection
   manufacturer: GlaxoSmithKline
@@ -148,7 +148,7 @@ priorix:
     0.5ml pre-filled syringes (GlaxoSmithKline UK Ltd) (product)
 
 vaxpro:
-  type: mmr
+  type: mmrv
   brand: MMR VaxPro
   method: injection
   manufacturer: Merck Sharp & Dohme

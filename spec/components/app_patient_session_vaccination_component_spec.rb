@@ -23,7 +23,7 @@ describe AppPatientSessionVaccinationComponent do
         create(
           :vaccination_record,
           patient:,
-          programme: create(:programme, :mmr)
+          programme: create(:programme, :mmrv)
         )
       end
 
