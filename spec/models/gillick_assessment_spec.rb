@@ -23,7 +23,6 @@
 #
 #  index_gillick_assessments_on_patient_id            (patient_id)
 #  index_gillick_assessments_on_performed_by_user_id  (performed_by_user_id)
-#  index_gillick_assessments_on_programme_id          (programme_id)
 #  index_gillick_assessments_on_programme_type        (programme_type)
 #  index_gillick_assessments_on_session_date_id       (session_date_id)
 #
