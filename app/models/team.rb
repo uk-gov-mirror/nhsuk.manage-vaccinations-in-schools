@@ -67,7 +67,6 @@ class Team < ApplicationRecord
   has_many :programmes, through: :team_programmes
   has_many :schools, through: :subteams
   has_many :vaccination_records, through: :sessions
-  has_many :vaccines, through: :programmes
 
   has_many :location_year_groups, through: :locations
   has_many :location_programme_year_groups,
@@ -75,6 +74,14 @@ class Team < ApplicationRecord
            through: :location_year_groups
 
   has_and_belongs_to_many :users
+
+  scope :has_programmes,
+        ->(programmes) do
+          where(
+            "programme_types @> ARRAY[?]::programme_type[]",
+            programmes.map(&:type)
+          )
+        end
 
   normalizes :email, with: EmailAddressNormaliser.new
   normalizes :phone, with: PhoneNumberNormaliser.new
