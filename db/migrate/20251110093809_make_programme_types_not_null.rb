@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class MakeProgrammeTypesNotNull < ActiveRecord::Migration[8.1]
   SINGLE_COLUMN_TABLES = %i[
     consent_form_programmes
