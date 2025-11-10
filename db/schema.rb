@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
+ActiveRecord::Schema[8.1].define(version: 2025_11_10_113103) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -1126,6 +1126,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
               COALESCE(school_la.mhclg_code, ''::character varying) AS patient_school_local_authority_code,
               COALESCE(school_la.mhclg_code, ''::character varying) AS patient_local_authority_code,
               school.id AS patient_school_id,
+              school.urn AS patient_school_urn,
                   CASE
                       WHEN (school.name IS NOT NULL) THEN school.name
                       WHEN (p.home_educated = true) THEN 'Home educated'::text
@@ -1169,8 +1170,16 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
                       WHEN (child_refused.patient_id IS NOT NULL) THEN true
                       ELSE false
                   END AS child_refused_vaccination_current_year,
+                  CASE
+                      WHEN (vr_nasal_current.patient_id IS NOT NULL) THEN true
+                      ELSE false
+                  END AS vaccinated_nasal_current_year,
+                  CASE
+                      WHEN (vr_injection_current.patient_id IS NOT NULL) THEN true
+                      ELSE false
+                  END AS vaccinated_injection_current_year,
               row_number() OVER (PARTITION BY p.id, prog.id, t.id, s.academic_year ORDER BY patient_school_org.id) AS rn
-             FROM ((((((((((((((((((((((((patients p
+             FROM ((((((((((((((((((((((((((patients p
                JOIN patient_locations pl ON ((pl.patient_id = p.id)))
                JOIN sessions s ON (((s.location_id = pl.location_id) AND (s.academic_year = pl.academic_year))))
                JOIN teams t ON ((t.id = s.team_id)))
@@ -1246,6 +1255,18 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
                      FROM (vaccination_records vr
                        JOIN sessions vr_s ON ((vr_s.id = vr.session_id)))
                     WHERE ((vr.discarded_at IS NULL) AND (vr.outcome = 1) AND ((vr.source IS NULL) OR (vr.source <> 3)))) child_refused ON (((child_refused.patient_id = p.id) AND (child_refused.programme_id = prog.id) AND (child_refused.academic_year = s.academic_year))))
+               LEFT JOIN ( SELECT DISTINCT vr.patient_id,
+                      vr.programme_id,
+                      vr_s.academic_year
+                     FROM (vaccination_records vr
+                       JOIN sessions vr_s ON ((vr_s.id = vr.session_id)))
+                    WHERE ((vr.discarded_at IS NULL) AND (vr.outcome = 0) AND (vr.delivery_method = 2))) vr_nasal_current ON (((vr_nasal_current.patient_id = p.id) AND (vr_nasal_current.programme_id = prog.id) AND (vr_nasal_current.academic_year = s.academic_year))))
+               LEFT JOIN ( SELECT DISTINCT vr.patient_id,
+                      vr.programme_id,
+                      vr_s.academic_year
+                     FROM (vaccination_records vr
+                       JOIN sessions vr_s ON ((vr_s.id = vr.session_id)))
+                    WHERE ((vr.discarded_at IS NULL) AND (vr.outcome = 0) AND (vr.delivery_method = ANY (ARRAY[0, 1])))) vr_injection_current ON (((vr_injection_current.patient_id = p.id) AND (vr_injection_current.programme_id = prog.id) AND (vr_injection_current.academic_year = s.academic_year))))
             WHERE ((p.invalidated_at IS NULL) AND (p.restricted_at IS NULL))
           )
    SELECT id,
@@ -1260,6 +1281,7 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
       patient_school_local_authority_code,
       patient_local_authority_code,
       patient_school_id,
+      patient_school_urn,
       patient_school_name,
       session_location_id,
       patient_year_group,
@@ -1274,7 +1296,9 @@ ActiveRecord::Schema[8.1].define(version: 2025_11_06_142201) do
       consent_status,
       consent_vaccine_methods,
       parent_refused_consent_current_year,
-      child_refused_vaccination_current_year
+      child_refused_vaccination_current_year,
+      vaccinated_nasal_current_year,
+      vaccinated_injection_current_year
      FROM base_data
     WHERE (rn = 1);
   SQL
