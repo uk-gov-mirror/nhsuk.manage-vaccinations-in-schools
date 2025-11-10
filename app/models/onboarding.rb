@@ -194,7 +194,7 @@ class Onboarding
     end
 
     def save!
-      TeamProgramme.create!(team:, programme:)
+      team.update!(programmes: team.programmes + [programme])
     end
   end
 

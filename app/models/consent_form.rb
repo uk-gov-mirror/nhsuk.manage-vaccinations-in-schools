@@ -120,14 +120,6 @@ class ConsentForm < ApplicationRecord
            -> { ordered.response_refused },
            class_name: "ConsentFormProgramme"
 
-  has_many :programmes, through: :consent_form_programmes
-  has_many :given_programmes,
-           through: :given_consent_form_programmes,
-           source: :programme
-  has_many :refused_programmes,
-           through: :refused_consent_form_programmes,
-           source: :programme
-
   has_one :subteam, through: :location
 
   has_many :eligible_schools, through: :team, source: :schools

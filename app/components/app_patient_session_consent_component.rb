@@ -14,7 +14,7 @@ class AppPatientSessionConsentComponent < AppPatientSessionSectionComponent
       patient
         .consent_notifications
         .request
-        .has_programme(programme)
+        .has_programmes([programme])
         .joins(:session)
         .where(session: { academic_year: })
         .order(sent_at: :desc)

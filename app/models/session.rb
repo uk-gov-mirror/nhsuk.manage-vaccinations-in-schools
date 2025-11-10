@@ -55,10 +55,6 @@ class Session < ApplicationRecord
   has_many :notes
   has_many :session_dates, -> { order(:value) }, autosave: true
   has_many :session_notifications
-  has_many :session_programmes,
-           -> { joins(:programme).order(:"programmes.type") },
-           dependent: :destroy,
-           autosave: true
   has_many :vaccination_records, -> { kept }
 
   has_and_belongs_to_many :immunisation_imports
@@ -70,7 +66,6 @@ class Session < ApplicationRecord
   has_one :organisation, through: :team
   has_one :subteam, through: :location
   has_many :pre_screenings, through: :session_dates
-  has_many :programmes, through: :session_programmes
   has_many :gillick_assessments, through: :session_dates
 
   has_many :location_year_groups,
@@ -110,12 +105,8 @@ class Session < ApplicationRecord
   scope :has_programmes,
         ->(programmes) do
           where(
-            "(?) >= ?",
-            SessionProgramme
-              .select("COUNT(session_programmes.id)")
-              .where("sessions.id = session_programmes.session_id")
-              .where(programme: programmes),
-            programmes.count
+            "ARRAY[?]::programme_type[] <@ programme_types",
+            programmes.map(&:type)
           )
         end
 

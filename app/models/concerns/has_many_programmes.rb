@@ -3,10 +3,22 @@
 module HasManyProgrammes
   extend ActiveSupport::Concern
 
-  included { after_validation :set_programme_types }
+  included do
+    scope :has_programmes,
+          ->(programmes) do
+            where(
+              "programme_types @> ARRAY[?]::programme_type[]",
+              programmes.map(&:type)
+            )
+          end
+  end
 
-  def set_programme_types
-    self.programme_types = programmes.map(&:type).sort
+  def programmes
+    programme_types.map { Programme.new(type: it) }
+  end
+
+  def programmes=(value)
+    self.programme_types = value.map(&:type).sort.uniq
   end
 
   def vaccines

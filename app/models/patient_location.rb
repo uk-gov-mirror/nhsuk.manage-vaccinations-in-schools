@@ -79,10 +79,9 @@ class PatientLocation < ApplicationRecord
 
   scope :appear_in_programmes,
         ->(programmes) do
-          session_programme_exists =
-            SessionProgramme
-              .where(programme: programmes)
-              .joins(:session)
+          session_exists =
+            Session
+              .has_programmes(programmes)
               .where("sessions.location_id = patient_locations.location_id")
               .where("sessions.academic_year = patient_locations.academic_year")
               .arel
@@ -106,9 +105,7 @@ class PatientLocation < ApplicationRecord
               .arel
               .exists
 
-          where(session_programme_exists).where(
-            location_programme_year_group_exists
-          )
+          where(session_exists).where(location_programme_year_group_exists)
         end
 
   scope :destroy_all_if_safe,

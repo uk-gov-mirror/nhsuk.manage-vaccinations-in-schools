@@ -122,7 +122,7 @@ class Stats::Organisations
         .where(sessions: { team: teams })
         .where(patient_id: eligible_patients.map(&:id))
         .where(sessions: { academic_year: })
-        .has_programme(programme)
+        .has_programmes([programme])
 
     initial_requests = comms.request
     reminders = comms.reminder

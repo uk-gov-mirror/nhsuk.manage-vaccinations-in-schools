@@ -25,16 +25,13 @@ module Stats
 
     def sessions
       @sessions ||=
-        ::Session
-          .joins(:session_programmes)
-          .where(
-            team: @teams,
-            academic_year: @academic_year,
-            session_programmes: {
-              programme: @programmes
-            }
-          )
-          .eager_load(:location)
+        ::Session.where(
+          team: @teams,
+          academic_year: @academic_year,
+          session_programmes: {
+            programme: @programmes
+          }
+        ).eager_load(:location)
     end
 
     def by_days_sessions
