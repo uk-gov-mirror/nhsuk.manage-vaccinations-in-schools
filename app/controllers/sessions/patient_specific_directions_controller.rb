@@ -44,7 +44,7 @@ class Sessions::PatientSpecificDirectionsController < ApplicationController
 
   def set_programme
     # TODO: Handle PSDs in sessions with multiple programmes.
-    @programme = @session.programmes.supports_delegation.first
+    @programme = @session.programmes.find(&:supports_delegation?)
   end
 
   def set_vaccine
