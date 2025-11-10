@@ -11,7 +11,7 @@
 #  knows_side_effects   :boolean          not null
 #  knows_vaccination    :boolean          not null
 #  notes                :text             default(""), not null
-#  programme_type       :enum
+#  programme_type       :enum             not null
 #  created_at           :datetime         not null
 #  updated_at           :datetime         not null
 #  patient_id           :bigint           not null
