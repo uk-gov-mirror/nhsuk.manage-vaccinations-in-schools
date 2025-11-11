@@ -1,0 +1,139 @@
+organisation:
+  ods_code: RYW
+
+team:
+  name: Birmingham and Solihull Immunisation Team
+  email: bchnt.birminghamimms@nhs.net
+  phone: "01214663410"
+  careplus_venue_code:
+  privacy_policy_url: https://www.bhamcommunity.nhs.uk/patient-privacy-notice/
+  privacy_notice_url: https://www.bhamcommunity.nhs.uk/download.cfm?doc=docm93jijm4n6296.pdf&ver=11443
+  reply_to_id: 57c9f60f-d430-4a47-9ef5-a7caf9ca7885
+
+programmes: [hpv, menacwy, tdipv, flu]
+
+subteams:
+  springfield:
+    name: Springfield Team
+    email: BCHNT.HPVTeamsouth@nhs.net
+    phone: "01214663410"
+    reply_to_id: 9dac769c-f5a8-4d42-a269-2421ad4ab953
+  lansdowne:
+    name: Lansdowne Team
+    email: BCHNT.hpvteamcentral@nhs.net
+    phone: "0121 245 5763"
+    reply_to_id: 7f60d1e7-0601-491a-92ee-30d51635744d
+  solihull:
+    name: Solihull Team
+    email: bchnt.solihullimms@nhs.net
+    phone: "01214666545"
+    reply_to_id: 70b686e7-b02d-41a6-ac45-70bbcf7422ce
+
+# TODO Determine which schools belong to which subteam
+schools:
+  springfield:
+    -
+  lansdowne:
+    -
+  solihull:
+    -
+
+# TODO Determine which belong to which subteam
+clinics:
+  springfield:
+  lansdowne:
+  solihull:
+    - name: Jaffray Resource Centre
+      address_line_1: 7 Jaffray Crescent
+      address_line_2: Erdington
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW42
+    - name: Landsdowne Health Centre
+      address_line_1: 34 Lansdowne Street
+      address_line_2: Winson Green
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW44
+    - name: Poplar Primary Care Centre
+      address_line_1: 58 Poplar Road
+      address_line_2: Kings Heath
+      address_town: Birmingham
+      address_postcode: B14 7AG
+      ods_code: 5M152
+    - name: Hall Green Health Centre
+      address_line_1: 977-979 Stratford Rd
+      address_town: Birmingham
+      address_postcode:
+      ods_code: 5M176
+    - name: Solihull Methodist Church
+      address_line_1: Solihull Methodist Church
+      address_line_2: Blossomfield Rd
+      address_town: Solihull
+      address_postcode:
+      ods_code:
+    - name: Hobmoor Road Centre
+      address_line_1: 192 Hob Moor road
+      address_line_2: Small Heath
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW41
+    - name: Castle Vale Primary Care Centre
+      address_line_1: 70 Tangmere Drive
+      address_line_2: Castle vale
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW30
+    - name: Sutton Cottage Hospital
+      address_line_1: 27a Birmingham Road
+      address_line_2: Sutton Coldfield
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW20
+    - name: St Margaret's Church Olton
+      address_line_1: St Margaret's Rd
+      address_line_2: Olton
+      address_town: Solihull
+      address_postcode:
+      ods_code: SMCO
+    - name: Solihull School
+      address_line_1: 793 Warwick Road
+      address_town: Solihull
+      address_postcode:
+      ods_code: EE104124
+    - name: Saltley Health Centre
+      address_line_1: 48 Cradock Rd
+      address_line_2: Saltley
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW55
+    - name: Riverside Lodge Intermediate Care Centre
+      address_line_1: 160 Hobmoor Road
+      address_line_2: Small Heath
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW13
+    - name: Springfields Centre for Health Promotion
+      address_line_1: Raddlebarn Road
+      address_line_2: Selly Oak
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW60
+    - name: West Heath Hospital
+      address_line_1: Rednal Road
+      address_line_2: West Heath
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW24
+    - name: Quinton Lane Care Centre
+      address_line_1: 27 Quinton Ln
+      address_line_2: Quinton
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW53
+    - name: Shirley Road Health Centre
+      address_line_1: 189 Shirley Rd
+      address_town: Birmingham
+      address_postcode:
+      ods_code: RYW57
+

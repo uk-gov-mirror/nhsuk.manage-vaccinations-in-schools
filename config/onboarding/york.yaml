@@ -1,0 +1,160 @@
+organisation:
+  ods_code: AJC
+
+team:
+  name: Vaccination UK - York
+  email: york@v-uk.co.uk
+  phone: "01904 237680"
+  privacy_notice_url: https://www.schoolvaccination.uk/privacy-policy
+  privacy_policy_url: https://www.schoolvaccination.uk/privacy-policy
+  careplus_venue_code:
+  reply_to_id: dcb54933-46b7-4d11-a44e-21a12b2d7de7
+
+
+programmes: [hpv, menacwy, tdipv, flu]
+
+subteams:
+  york:
+    name: Vaccination UK - York
+    email: york@v-uk.co.uk
+    phone: "01904 237680"
+    reply_to_id: dcb54933-46b7-4d11-a44e-21a12b2d7de7
+
+schools:
+  york:
+    - 144165
+    - 121472
+    - 148233
+    - 147229
+    - 121368
+    - 121308
+    - 121371
+    - 121602
+    - 121738
+    - 121477
+    - 144155
+    - 121479
+    - 121670
+    - 121480
+    - 121604
+    - 121699
+    - 121382
+    - 121765
+    - 121372
+    - 121481
+    - 151399
+    - 121619
+    - 147216
+    - 121608
+    - 145370
+    - 121350
+    - 112456
+    - 121334
+    - 121483
+    - 121484
+    - 144156
+    - 121752
+    - 151618
+    - 121332
+    - 121487
+    - 121331
+    - 144157
+    - 143289
+    - 121584
+    - 121393
+    - 137348
+    - 121542
+    - 121496
+    - 135850
+    - 143523
+    - 121499
+    - 121501
+    - 121302
+    - 151170
+    - 121361
+    - 121503
+    - 147192
+    - 121504
+    - 121611
+    - 144166
+    - 121570
+    - 144429
+    - 121338
+    - 121293
+    - 121333
+    - 144159
+    - 121337
+    - 121495
+    - 121613
+    - 121543
+    - 121609
+    - 121614
+    - 121330
+    - 151277
+    - 121309
+    - 121678
+    - 150122
+    - 151276
+    - 144976
+    - 121369
+    - 145411
+    - 121510
+    - 121725
+    - 144161
+    - 121311
+    - 121544
+    - 145090
+    - 121663
+    - 121312
+    - 141463
+    - 132728
+    - 151006
+    - 121323
+    - 149416
+    - 144162
+    - 145369
+    - 121517
+    - 147213
+    - 121655
+    - 121524
+    - 121606
+    - 121324
+    - 143612
+    - 141930
+    - 121518
+    - 121771
+    - 121679
+    - 121365
+    - 121666
+    - 121521
+    - 144840
+    - 144164
+    - 144167
+    - 144647
+    - 121343
+    - 121482
+
+clinics:
+  york:
+    - name: Hob Moor Children's Centre
+      address_line_1: Green Lane Acomb
+      address_town: York
+      address_postcode: YO24 4RF
+      ods_code:
+    - name: Selby Clinic
+      address_line_1: Selby Library
+      address_line_2: 52 Micklegate
+      address_town: Selby
+      address_postcode: YO8 4EQ
+      ods_code:
+    - name: Sherburn Clinic
+      address_line_1: 18 Kirkgate
+      address_town: Sherburn in Elmet
+      address_postcode: LS25 6BL
+      ods_code:
+    - name: York Clinic
+      address_line_1: The Avenues Children's Centre
+      address_line_2: Sixth Ave, Tang Hall
+      address_town: York
+      address_postcode: YO31 0UT
+      ods_code:

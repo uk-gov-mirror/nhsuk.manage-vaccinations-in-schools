@@ -1,0 +1,167 @@
+organisation:
+  ods_code: AJC
+
+team:
+  name: Vaccination UK - Harrogate
+  email: harrogate@v-uk.co.uk
+  phone: "01904 237695"
+  privacy_notice_url: https://www.schoolvaccination.uk/privacy-policy
+  privacy_policy_url: https://www.schoolvaccination.uk/privacy-policy
+  careplus_venue_code:
+  reply_to_id: 30acb739-7681-4e9b-9826-dcee9d62bde7
+
+# TODO choose programmes
+programmes: [hpv, menacwy, tdipv, flu]
+
+subteams:
+  harrogate:
+    name: Vaccination UK - Harrogate
+    email: harrogate@v-uk.co.uk
+    phone: "01904 237695"
+    reply_to_id: 30acb739-7681-4e9b-9826-dcee9d62bde7
+
+schools:
+  harrogate:
+    - 144265
+    - 149517
+    - 121735
+    - 134727
+    - 146005
+    - 136617
+    - 146483
+    - 121461
+    - 142838
+    - 121635
+    - 121448
+    - 121449
+    - 144929
+    - 121548
+    - 121444
+    - 148823
+    - 121722
+    - 143138
+    - 121554
+    - 141393
+    - 143398
+    - 121385
+    - 143139
+    - 121386
+    - 121273
+    - 121625
+    - 121556
+    - 121529
+    - 121283
+    - 144264
+    - 132047
+    - 121270
+    - 121276
+    - 144713
+    - 121531
+    - 121532
+    - 121390
+    - 145241
+    - 121277
+    - 144711
+    - 121566
+    - 140563
+    - 121367
+    - 121450
+    - 142844
+    - 121403
+    - 142845
+    - 144709
+    - 144708
+    - 121718
+    - 141908
+    - 121673
+    - 121711
+    - 146006
+    - 146007
+    - 121573
+    - 142760
+    - 144710
+    - 121575
+    - 121460
+    - 121536
+    - 150928
+    - 136544a
+    - 136544b
+    - 142648b
+    - 142648a
+    - 145778
+    - 121726
+    - 121537
+    - 144651
+    - 121455
+    - 141555
+    - 146028
+    - 136435
+    - 144266
+    - 141914
+    - 121281
+    - 121749
+    - 121299
+    - 121748
+    - 121457
+    - 145822
+    - 140471
+    - 137751
+    - 146840
+    - 145846
+    - 142637
+    - 121586
+    - 144931
+    - 121702
+    - 121695
+    - 145821
+    - 121335
+    - 145820
+    - 121646
+    - 121473
+    - 121647
+    - 148879
+    - 143863
+    - 121547
+    - 148166
+    - 121535
+    - 121474
+    - 121724
+    - 121648
+    - 141880
+    - 121759
+    - 121360
+    - 145777
+    - 146152
+    - 143509
+    - 121436
+    - 143864
+    - 133374
+    - 144712
+    - 121423
+    - 121366
+    - 121596
+    - 144267
+    - 132228
+    - 144652
+    - 151837
+
+
+clinics:
+  harrogate:
+    - name: Harrogate Clinic
+      address_line_1: Knaresborough Wellbeing Hub
+      address_line_2: 79 Stockwell Avenue
+      address_town: Knaresborough
+      address_postcode: HG5 0LG
+      ods_code:
+    - name: Ripon Clinic
+      address_line_1: St. Wilfrid's Community Centre
+      address_line_2: Coltsgate Hill
+      address_town: Ripon
+      address_postcode: HG4 2AB
+      ods_code:
+    - name: Skipton Clinic
+      address_line_1: Skipton Town Hall
+      address_town: Skipton
+      address_postcode: BD23 1AH
+      ods_code:
