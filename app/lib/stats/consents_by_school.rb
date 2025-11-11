@@ -26,14 +26,8 @@ module Stats
     def sessions
       @sessions ||=
         ::Session
-          .joins(:session_programmes)
-          .where(
-            team: @teams,
-            academic_year: @academic_year,
-            session_programmes: {
-              programme: @programmes
-            }
-          )
+          .where(team: @teams, academic_year: @academic_year)
+          .has_any_programmes_of(programmes)
           .eager_load(:location)
     end
 
@@ -51,11 +45,11 @@ module Stats
           .includes(patient: { consents: %i[consent_form parent] })
           .find_each do |patient_location|
             grouped_consents =
-              @programmes.map do |programme|
+              programmes.map do |programme|
                 ConsentGrouper.call(
                   patient_location.patient.consents,
-                  programme_id: programme.id,
-                  academic_year: @academic_year
+                  programme_type: programme.type,
+                  academic_year:
                 )&.min_by(&:created_at)
               end
 

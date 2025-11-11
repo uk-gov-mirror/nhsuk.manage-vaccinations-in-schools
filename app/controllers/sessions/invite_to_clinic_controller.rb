@@ -33,7 +33,7 @@ class Sessions::InviteToClinicController < ApplicationController
 
   def set_session
     @session =
-      authorize Session.includes(:programmes).find_by!(
+      authorize Session.find_by!(
                   slug: params[:session_slug]
                 )
 

@@ -45,7 +45,7 @@ class AppPatientSessionTriageComponent < AppPatientSessionSectionComponent
     @latest_triage ||=
       TriageFinder.call(
         patient.triages.includes(:performed_by),
-        programme_id: programme.id,
+        programme_type: programme.type,
         academic_year:
       )
   end

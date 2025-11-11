@@ -13,13 +13,13 @@ describe ConsentFormMailerConcern do
     it "sends a confirmation email" do
       expect { send_consent_form_confirmation }.to have_delivered_email(
         :consent_confirmation_given
-      ).with(consent_form:, programmes: consent_form.programmes)
+      ).with(consent_form:, programme_types: consent_form.programme_types)
     end
 
     it "sends a consent given text" do
       expect { send_consent_form_confirmation }.to have_delivered_sms(
         :consent_confirmation_given
-      ).with(consent_form:, programmes: consent_form.programmes)
+      ).with(consent_form:, programme_types: consent_form.programme_types)
     end
 
     context "when user refuses consent" do
@@ -82,7 +82,7 @@ describe ConsentFormMailerConcern do
       it "sends an confirmation needs triage email" do
         expect { send_consent_form_confirmation }.to have_delivered_email(
           :consent_confirmation_triage
-        ).with(consent_form:, programmes: consent_form.programmes)
+        ).with(consent_form:, programme_types: consent_form.programme_types)
       end
 
       it "doesn't send a text" do
@@ -106,7 +106,7 @@ describe ConsentFormMailerConcern do
       it "sends an confirmation needs triage email" do
         expect { send_consent_form_confirmation }.to have_delivered_email(
           :consent_confirmation_clinic
-        ).with(consent_form:, programmes: consent_form.programmes)
+        ).with(consent_form:, programme_types: consent_form.programme_types)
       end
 
       it "doesn't send a text" do

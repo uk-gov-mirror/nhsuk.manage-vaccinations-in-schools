@@ -8,16 +8,11 @@ class ImportantNoticeGeneratorJob < ApplicationJob
   def perform(patient_id = nil)
     if patient_id.present?
       process_batch(
-        [
-          Patient.includes(
-            :teams,
-            vaccination_records: %i[programme team]
-          ).find(patient_id)
-        ]
+        [Patient.includes(:teams, vaccination_records: :team).find(patient_id)]
       )
     else
       Patient
-        .includes(:teams, vaccination_records: %i[programme team])
+        .includes(:teams, vaccination_records: :team)
         .find_in_batches(batch_size: BATCH_SIZE) do |patients_batch|
           process_batch(patients_batch)
         end

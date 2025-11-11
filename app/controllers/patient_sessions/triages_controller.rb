@@ -44,7 +44,7 @@ class PatientSessions::TriagesController < PatientSessions::BaseController
       ConsentGrouper
         .call(
           @patient.reload.consents,
-          programme_id: @programme.id,
+          programme_type: @programme.type,
           academic_year: @academic_year
         )
         .each do

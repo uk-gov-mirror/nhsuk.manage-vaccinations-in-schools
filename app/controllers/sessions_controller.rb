@@ -10,7 +10,7 @@ class SessionsController < ApplicationController
     @programmes = current_user.selected_team.programmes
 
     scope =
-      policy_scope(Session).includes(:location, :programmes, :session_dates)
+      policy_scope(Session).includes(:location, :session_dates)
 
     sessions = @form.apply(scope)
 

@@ -11,7 +11,6 @@
 #  updated_at           :datetime         not null
 #  patient_id           :bigint           not null
 #  performed_by_user_id :bigint           not null
-#  programme_id         :bigint
 #  session_date_id      :bigint           not null
 #
 # Indexes
@@ -34,7 +33,6 @@ describe PreScreening do
   describe "associations" do
     it { should belong_to(:patient) }
     it { should belong_to(:session_date) }
-    it { should belong_to(:programme) }
   end
 
   describe "scopes" do

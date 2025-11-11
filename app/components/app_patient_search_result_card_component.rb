@@ -138,7 +138,7 @@ class AppPatientSearchResultCardComponent < ViewComponent::Base
 
   def status_resolver_for(programme)
     @status_resolver_for ||= {}
-    @status_resolver_for[programme.id] ||= PatientStatusResolver.new(
+    @status_resolver_for[programme.type] ||= PatientStatusResolver.new(
       patient,
       programme:,
       academic_year:
@@ -150,7 +150,7 @@ class AppPatientSearchResultCardComponent < ViewComponent::Base
 
     patient.location_programme_year_groups.any? do
       it.academic_year == academic_year && it.year_group == year_group &&
-        it.programme_id == programme.id
+        it.programme_type == programme.type
     end
   end
 end

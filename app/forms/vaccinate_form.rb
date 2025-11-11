@@ -24,7 +24,7 @@ class VaccinateForm
   attribute :vaccine_method, :string
   attribute :delivery_site, :string
   attribute :dose_sequence, :integer
-  attribute :programme_id, :integer
+  attribute :programme_type, :string
 
   validates :identity_check_confirmed_by_patient,
             inclusion: {

@@ -45,7 +45,8 @@ class SearchVaccinationRecordsInNHSJob < ImmunisationsAPIJob
         patient
           .vaccination_records
           .includes(:identity_check)
-          .where(programme: programmes, source: :nhs_immunisations_api)
+          .sourced_from_nhs_immunisations_api
+          .where_programme(programmes)
 
       existing_vaccination_records.find_each do |vaccination_record|
         incoming_vaccination_record =

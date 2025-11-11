@@ -114,11 +114,10 @@ class Patient < ApplicationRecord
   SQL
 
   scope :in_eligible_year_group_for_session_programme, -> { joins(<<-SQL) }
-    INNER JOIN session_programmes ON session_programmes.session_id = sessions.id
     INNER JOIN location_year_groups ON location_year_groups.location_id = patient_locations.location_id
     AND location_year_groups.academic_year = patient_locations.academic_year
     INNER JOIN location_programme_year_groups ON location_programme_year_groups.location_year_group_id = location_year_groups.id
-    AND location_programme_year_groups.programme_id = session_programmes.programme_id
+    AND location_programme_year_groups.programme_type = ANY (session.programme_types)
     AND patients.birth_academic_year = location_year_groups.academic_year - location_year_groups.value - #{Integer::AGE_CHILDREN_START_SCHOOL}
   SQL
 
@@ -246,7 +245,8 @@ class Patient < ApplicationRecord
             Patient::VaccinationStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(status:, programme:, academic_year:)
+              .where_programme(programme)
+              .where(status:, academic_year:)
               .arel
               .exists
           )
@@ -264,7 +264,8 @@ class Patient < ApplicationRecord
             Patient::ConsentStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(status:, programme:, academic_year:)
+              .where_programme(programme)
+              .where(status:, academic_year:)
 
           unless vaccine_method.nil?
             consent_status_scope =
@@ -290,7 +291,8 @@ class Patient < ApplicationRecord
             Patient::TriageStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(status:, programme:, academic_year:)
+              .where_programme(programme)
+              .where(status:, academic_year:)
 
           unless vaccine_method.nil?
             triage_status_scope = triage_status_scope.where(vaccine_method:)
@@ -314,7 +316,8 @@ class Patient < ApplicationRecord
             Patient::TriageStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(programme:, academic_year:)
+              .where_programme(programme)
+              .where(academic_year:)
               .then { vaccine_method ? it.where(vaccine_method:) : it }
               .then { without_gelatine ? it.where(without_gelatine:) : it }
 
@@ -322,14 +325,16 @@ class Patient < ApplicationRecord
             Patient::TriageStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(programme:, academic_year:)
+              .where_programme(programme)
+              .where(academic_year:)
               .where(status: "not_required")
 
           consent_status_matching =
             Patient::ConsentStatus
               .select("1")
               .where("patient_id = patients.id")
-              .where(programme:, academic_year:)
+              .where_programme(programme)
+              .where(academic_year:)
               .then { without_gelatine ? it.where(without_gelatine:) : it }
               .then do
                 vaccine_method ? it.has_vaccine_method(vaccine_method) : it
@@ -360,7 +365,8 @@ class Patient < ApplicationRecord
             PatientSpecificDirection
               .select("1")
               .where("patient_id = patients.id")
-              .where(programme:, academic_year:, team:)
+              .where_programme(programme)
+              .where(academic_year:, team:)
               .not_invalidated
               .arel
               .exists
@@ -373,7 +379,8 @@ class Patient < ApplicationRecord
             PatientSpecificDirection
               .select("1")
               .where("patient_id = patients.id")
-              .where(programme:, academic_year:, team:)
+              .where_programme(programme)
+              .where(academic_year:, team:)
               .not_invalidated
               .arel
               .exists
@@ -405,7 +412,7 @@ class Patient < ApplicationRecord
                 Patient::VaccinationStatus
                   .select("1")
                   .where("patient_id = patients.id")
-                  .where(programme:)
+                  .where_programme(programme)
                   .vaccinated
 
               scope =
@@ -532,7 +539,6 @@ class Patient < ApplicationRecord
     Session
       .joins_patient_locations
       .joins_patients
-      .joins(:session_programmes)
       .joins_location_programme_year_groups
       .where(patients: { id: })
       .distinct
@@ -787,7 +793,7 @@ class Patient < ApplicationRecord
 
   def patient_status(association, programme:, academic_year:)
     association.find do
-      it.programme_id == programme.id && it.academic_year == academic_year
+      it.programme_type == programme.type && it.academic_year == academic_year
     end || association.build(programme:, academic_year:)
   end
 
